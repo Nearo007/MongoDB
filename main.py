@@ -45,10 +45,21 @@ def insertBook(bookInfo):
 def searchBooksAll():
     if (collectionBooks.count_documents({}) > 0):
         documents = collectionBooks.find()
+
+        keyMapping = {
+            'title': 'Título',
+            'author': 'Autor(a)',
+            'genre': 'Gênero',
+            'year': 'Ano de Publicação',
+            'ISBN': 'ISBN',
+            'quantity': 'Quantidade em Estoque'
+        }
         
+        print('\n')
         for document in documents:
-            print('\n')
-            print(document)
+            for key, friendlyName in keyMapping.items():
+                value = document.get(key, 'Informação não disponível')        
+                print(f'{friendlyName} : {value}')
 
     else:
         print('\nNenhum livro cadastrado.')
@@ -110,7 +121,7 @@ while True:
                 except Exception as e:
                     print(f'Id inválido: {e}')
 
-    elif (userRequest == '10') or (userRequest.lower() == 'sair'):
+    elif (userRequest == '4') or (userRequest.lower() == 'sair'):
         print('\nAté logo!')
         break
 

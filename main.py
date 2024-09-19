@@ -3,7 +3,7 @@ from bson import ObjectId
 import sys
 
 while True:
-    clusterPassword = str(input('\nDigite a senha do cluster ou SAIR para finalizar:\n>>'))
+    clusterPassword = str(input('\nDigite a senha do cluster ou SAIR para finalizar:\n>> '))
 
     if (clusterPassword.lower() != 'sair'):
         try:
@@ -54,13 +54,14 @@ def searchBooksAll():
             'ISBN': 'ISBN',
             'quantity': 'Quantidade em Estoque'
         }
-        
+        # Arrumar id no search books
         print('\n')
         for document in documents:
+            print(document['_id'])
             for key, friendlyName in keyMapping.items():
                 value = document.get(key, 'Informação não disponível')        
                 print(f'{friendlyName} : {value}')
-
+            print('--------\n')
     else:
         print('\nNenhum livro cadastrado.')
 
@@ -69,7 +70,7 @@ def searchBookBy(key, value):
 
 def removeBookBy(removeBy, removeBook):
     if (removeBook):    
-        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este livro:\n, {removeBook}\n>>'))
+        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este livro:\n, {removeBook}\n>> '))
 
         if userConfirm.lower() == 'confirmar':
             try:
@@ -87,7 +88,7 @@ def removeBookBy(removeBy, removeBook):
     
 
 while True:
-    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Remover livro\n10 - Sair\n>>'))
+    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Remover livro\n4 - Sair\n\n>> '))
 
     if (userRequest == '1') or (userRequest.lower() == 'consultar'):
         searchBooksAll()
@@ -103,16 +104,16 @@ while True:
         insertBook([userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity])
 
     elif (userRequest == '3') or (userRequest.lower() == 'remover'):
-            userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Id\n>>'))
+            userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Id\n>> '))
 
             if (userRemoveBy == '1') or (userRemoveBy.lower() == 'título'):
-                userRemoveName = str(input('Título do livro:\n>>'))
+                userRemoveName = str(input('Título do livro:\n>> '))
                 removeBook = searchBookBy('title', userRemoveName)
 
                 removeBookBy('_id', removeBook)
 
             elif (userRemoveBy == '2') or (userRemoveBy.lower() == 'id'):
-                userRemoveId = str(input('Id do livro\n>>'))
+                userRemoveId = str(input('Id do livro\n>> '))
 
                 try:
                     removeBook = searchBookBy('_id', ObjectId(userRemoveId))

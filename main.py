@@ -1,7 +1,9 @@
 from pymongo import MongoClient
 from bson import ObjectId
 
-client = MongoClient('mongodb+srv://Nearo:aracnidea@cluster0.kcsg9.mongodb.net/') # Alterar o link com a senha depois
+clusterPassword = str(input('Digite a senha do cluster:\n>>'))
+
+client = MongoClient(f'mongodb+srv://Nearo:{clusterPassword}@cluster0.kcsg9.mongodb.net/')
 
 db = client['LibraryManager']
 

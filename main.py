@@ -15,13 +15,30 @@ def searchAll(collection):
     for document in documents:
         print('\n')
         print(document)
+
+def searchBookBy(key, value):
+    return collectionBooks.find_one({key: value})
+
+def removeBookBy(removeBook, removeBy):
+    if (removeBook):    
+        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este livro:\n, {removeBook}\n>>'))
+
+        if userConfirm.lower() == 'confirmar':
+            try:
+                collectionBooks.delete_one({removeBy: removeBook[removeBy]})
+                print('\nLivro removido com sucesso')
+
+            except:
+                print('\nAlgo deu errado...')
+        
+    else:
+        print('Livro não encontrado')
     
-    return collection.find() 
 
 while True:
-    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar livro\n2 - Adicionar livros\n4 - Remover livro\n3 - Sair\n>>'))
+    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar livro\n2 - Adicionar livros\n3 - Remover livro\n10 - Sair\n>>'))
 
-    if (userRequest == '1') or (userRequest == 'consultar'):
+    if (userRequest == '1') or (userRequest.lower() == 'consultar'):
         searchAll(collectionBooks)
 
     elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
@@ -30,7 +47,7 @@ while True:
         userGenre = str(input('Digite o gênero do livro: '))
 
         documentBook = {
-            'name': userName,
+            'title': userName,
             'genre': userGenre,
             'rented': 0
         }
@@ -39,12 +56,18 @@ while True:
         
         print('acho que deu certo')
 
-    elif (userRequest == '3') or (userRequest.lower() == 'sair'):
+    elif (userRequest == '3') or (userRequest.lower() == 'remover'):
+            userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Gênero\n3 - ID\n>>'))
+
+            if (userRemoveBy == '1') or (userRemoveBy.lower() == 'título'):
+                userRemoveName = str(input('Título do livro:\n>>'))
+                removeBook = searchBookBy('name', userRemoveName)
+
+                removeBookBy(removeBook, '_id')
+
+    elif (userRequest == '10') or (userRequest.lower() == 'sair'):
         print('\nAté logo!')
         break
-
-    elif (userRequest == '4') or (userRequest == 'remover'):
-        pass
 
     else:
         print('\nOpção inválida\n')

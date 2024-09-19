@@ -1,10 +1,22 @@
 from pymongo import MongoClient
 from bson import ObjectId
+import sys
 
-clusterPassword = str(input('Digite a senha do cluster:\n>>'))
+while True:
+    clusterPassword = str(input('\nDigite a senha do cluster ou SAIR para finalizar:\n>>'))
 
-client = MongoClient(f'mongodb+srv://Nearo:{clusterPassword}@cluster0.kcsg9.mongodb.net/')
+    if (clusterPassword.lower() != 'sair'):
+        try:
+            client = MongoClient(f'mongodb+srv://Nearo:{clusterPassword}@cluster0.kcsg9.mongodb.net/')
+            
+            db_list = client.list_database_names()
 
+            print("\nConexão bem-sucedida!")
+            break
+        except:
+            print("\nErro de conexão: Verifique se a senha e o URI estão corretos.")
+    else:
+        sys.exit()
 db = client['LibraryManager']
 
 collectionBooks = db['books']

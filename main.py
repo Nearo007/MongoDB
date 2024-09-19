@@ -6,15 +6,19 @@ db = client['LibraryManager']
 
 collectionBooks = db['books']
 
-def insertDocument(collection, document):
-    collection.insert_one(document)
+def insertBook(book):
+    collectionBooks.insert_one(book)
 
-def searchAll(collection):
-    documents = collection.find()
-    
-    for document in documents:
-        print('\n')
-        print(document)
+def searchBooksAll():
+    if (collectionBooks.count_documents({}) > 0):
+        documents = collectionBooks.find()
+        
+        for document in documents:
+            print('\n')
+            print(document)
+
+    else:
+        print('\nNenhum livro cadastrado.')
 
 def searchBookBy(key, value):
     return collectionBooks.find_one({key: value})
@@ -36,10 +40,10 @@ def removeBookBy(removeBook, removeBy):
     
 
 while True:
-    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar livro\n2 - Adicionar livros\n3 - Remover livro\n10 - Sair\n>>'))
+    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Remover livro\n10 - Sair\n>>'))
 
     if (userRequest == '1') or (userRequest.lower() == 'consultar'):
-        searchAll(collectionBooks)
+        searchBooksAll()
 
     elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
         
@@ -52,16 +56,14 @@ while True:
             'rented': 0
         }
         
-        insertDocument(collectionBooks, documentBook)
-        
-        print('acho que deu certo')
+        insertBook(documentBook)
 
     elif (userRequest == '3') or (userRequest.lower() == 'remover'):
             userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Gênero\n3 - ID\n>>'))
 
             if (userRemoveBy == '1') or (userRemoveBy.lower() == 'título'):
                 userRemoveName = str(input('Título do livro:\n>>'))
-                removeBook = searchBookBy('name', userRemoveName)
+                removeBook = searchBookBy('title', userRemoveName)
 
                 removeBookBy(removeBook, '_id')
 

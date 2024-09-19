@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from bson import ObjectId
 
 client = MongoClient('mongodb+srv://Nearo:aracnidea@cluster0.kcsg9.mongodb.net/') # Alterar o link com a senha depois
 
@@ -23,7 +24,7 @@ def searchBooksAll():
 def searchBookBy(key, value):
     return collectionBooks.find_one({key: value})
 
-def removeBookBy(removeBook, removeBy):
+def removeBookBy(removeBy, removeBook):
     if (removeBook):    
         userConfirm = str(input(f'\nDigite CONFIRMAR para remover este livro:\n, {removeBook}\n>>'))
 
@@ -34,6 +35,9 @@ def removeBookBy(removeBook, removeBy):
 
             except:
                 print('\nAlgo deu errado...')
+        
+        else:
+            print('\nRemoção cancelada.')
         
     else:
         print('Livro não encontrado')
@@ -59,13 +63,23 @@ while True:
         insertBook(documentBook)
 
     elif (userRequest == '3') or (userRequest.lower() == 'remover'):
-            userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Gênero\n3 - ID\n>>'))
+            userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Id\n>>'))
 
             if (userRemoveBy == '1') or (userRemoveBy.lower() == 'título'):
                 userRemoveName = str(input('Título do livro:\n>>'))
                 removeBook = searchBookBy('title', userRemoveName)
 
-                removeBookBy(removeBook, '_id')
+                removeBookBy('_id', removeBook)
+
+            elif (userRemoveBy == '2') or (userRemoveBy.lower() == 'id'):
+                userRemoveId = str(input('Id do livro\n>>'))
+
+                try:
+                    removeBook = searchBookBy('_id', ObjectId(userRemoveId))
+                    removeBookBy('_id', removeBook)
+
+                except Exception as e:
+                    print(f'Id inválido: {e}')
 
     elif (userRequest == '10') or (userRequest.lower() == 'sair'):
         print('\nAté logo!')

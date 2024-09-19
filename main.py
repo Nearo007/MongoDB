@@ -17,12 +17,30 @@ while True:
             print("\nErro de conexão: Verifique se a senha e o URI estão corretos.")
     else:
         sys.exit()
+
 db = client['LibraryManager']
 
 collectionBooks = db['books']
+collectionUsers = db['users']
 
-def insertBook(book):
-    collectionBooks.insert_one(book)
+def insertBook(bookInfo):
+    #bookInfo = [userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity]
+    for info in bookInfo:
+        if info == '':
+            print('Nenhum dos campos pode ser vazio')
+            return
+        
+    documentBook = {
+        'title': bookInfo[0],
+        'author': bookInfo[1],
+        'genre': bookInfo[2],
+        'year': bookInfo[3],
+        'ISBN': bookInfo[4],
+        'quantity': bookInfo[5]
+    }
+
+    collectionBooks.insert_one(documentBook)
+    print('\nLivro cadastrado com sucesso!')
 
 def searchBooksAll():
     if (collectionBooks.count_documents({}) > 0):
@@ -64,17 +82,14 @@ while True:
         searchBooksAll()
 
     elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
-        
-        userName = str(input('Digite o título do livro: '))
+        userTitle = str(input('\nDigite o título do livro: '))
+        userAuthor = str(input('Digite o autor do livro: '))
         userGenre = str(input('Digite o gênero do livro: '))
-
-        documentBook = {
-            'title': userName,
-            'genre': userGenre,
-            'rented': 0
-        }
+        userYear = str(input('Digite o ano de publicação: '))
+        userISBN = str(input('Digite o ISBN do livro: '))
+        userQuantity = str(input('Digite a quantidade de exemplares disponíveis: '))
         
-        insertBook(documentBook)
+        insertBook([userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity])
 
     elif (userRequest == '3') or (userRequest.lower() == 'remover'):
             userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Id\n>>'))

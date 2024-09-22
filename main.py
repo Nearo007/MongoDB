@@ -88,39 +88,67 @@ def removeBookBy(removeBy, removeBook):
     
 
 while True:
-    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Remover livro\n4 - Sair\n\n>> '))
+    userRequest = str(input("\nO quê deseja consultar?\n1 - Livros\n2 - Usuários\n3 - Empréstimos\n4 - Sair\n\n>> "))
+    
+    if (userRequest == '1') or (userRequest.lower() == 'livros'):
+        while True:
+            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Remover livro\n4 - Voltar\n\n>> '))
 
-    if (userRequest == '1') or (userRequest.lower() == 'consultar'):
-        searchBooksAll()
+            if (userRequest == '1') or (userRequest.lower() == 'consultar'):
+                searchBooksAll()
 
-    elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
-        userTitle = str(input('\nDigite o título do livro: '))
-        userAuthor = str(input('Digite o autor do livro: '))
-        userGenre = str(input('Digite o gênero do livro: '))
-        userYear = str(input('Digite o ano de publicação: '))
-        userISBN = str(input('Digite o ISBN do livro: '))
-        userQuantity = str(input('Digite a quantidade de exemplares disponíveis: '))
-        
-        insertBook([userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity])
+            elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
+                userTitle = str(input('\nDigite o título do livro: '))
+                userAuthor = str(input('Digite o autor do livro: '))
+                userGenre = str(input('Digite o gênero do livro: '))
+                userYear = str(input('Digite o ano de publicação: '))
+                userISBN = str(input('Digite o ISBN do livro: '))
+                userQuantity = str(input('Digite a quantidade de exemplares disponíveis: '))
+                
+                insertBook([userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity])
 
-    elif (userRequest == '3') or (userRequest.lower() == 'remover'):
-            userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Id\n>> '))
+            elif (userRequest == '3') or (userRequest.lower() == 'remover'):
+                    userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Id\n>> '))
 
-            if (userRemoveBy == '1') or (userRemoveBy.lower() == 'título'):
-                userRemoveName = str(input('Título do livro:\n>> '))
-                removeBook = searchBookBy('title', userRemoveName)
+                    if (userRemoveBy == '1') or (userRemoveBy.lower() == 'título'):
+                        userRemoveName = str(input('Título do livro:\n>> '))
+                        removeBook = searchBookBy('title', userRemoveName)
 
-                removeBookBy('_id', removeBook)
+                        removeBookBy('_id', removeBook)
 
-            elif (userRemoveBy == '2') or (userRemoveBy.lower() == 'id'):
-                userRemoveId = str(input('Id do livro\n>> '))
+                    elif (userRemoveBy == '2') or (userRemoveBy.lower() == 'id'):
+                        userRemoveId = str(input('Id do livro\n>> '))
 
-                try:
-                    removeBook = searchBookBy('_id', ObjectId(userRemoveId))
-                    removeBookBy('_id', removeBook)
+                        try:
+                            removeBook = searchBookBy('_id', ObjectId(userRemoveId))
+                            removeBookBy('_id', removeBook)
 
-                except Exception as e:
-                    print(f'Id inválido: {e}')
+                        except Exception as e:
+                            print(f'Id inválido: {e}')
+
+                    else:
+                        print('\nOpção inválida\n')
+
+            elif (userRequest == '4') or (userRequest.lower() == 'voltar'):
+                break
+
+            else:
+                print('\nOpção inválida\n')
+
+    elif (userRequest == '2') or (userRequest.lower() == 'usuários'):
+        userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os usuários\n2 - Voltar\n\n>> '))
+
+        if (userRequest == '1') or (userRequest.lower() == 'consultar'):
+            print('\nEm desenvolvimento...\n')
+
+        elif (userRequest == '2') or (userRequest.lower() == 'voltar'):
+            pass
+
+        else:
+            print('\nOpção inválida\n')
+
+    elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
+        print('\nEm desenvolvimento...\n')
 
     elif (userRequest == '4') or (userRequest.lower() == 'sair'):
         print('\nAté logo!')

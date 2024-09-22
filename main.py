@@ -85,6 +85,56 @@ def removeBookBy(removeBy, removeBook):
         
     else:
         print('Livro não encontrado')
+
+def insertUser(userInfo):
+    for info in userInfo:
+        if info == '':
+            print('Nenhum dos campos pode ser vazio')
+            return
+        
+    documentUser = {
+        'name': userInfo[0],
+        'email': userInfo[1],
+        'birth_date': userInfo[2],
+        'cpf': userInfo[3]
+    }
+    
+    collectionUsers.insert_one(documentUser)
+    print('\nUsuario cadastrado com sucesso!')
+
+def searchUserBy(key, value):
+    return collectionUsers.find_one({key: value})
+
+def removeUserBy(removeBy, removeUser):
+    if (removeUser):    
+        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este usuario:\n, {removeUser}\n>> '))
+
+        if userConfirm.lower() == 'confirmar':
+            try:
+                collectionUsers.delete_one({removeBy: removeUser[removeBy]})
+                print('\nUsuario removido com sucesso')
+
+            except:
+                print('\nAlgo deu errado...')
+        
+        else:
+            print('\nRemoção cancelada.')
+        
+    else:
+        print('Usuario não encontrado')
+
+def searchUserAll():
+    if (collectionUsers.count_documents({}) > 0):
+        documents = collectionUsers.find()
+
+        print('\n')
+        for document in documents:
+            print(document['_id'])
+            for key, value in document.items():
+                print(f'{key} : {value}')
+            print('--------\n')
+    else:
+        print('\nNenhum usuario cadastrado.')
     
 
 while True:
@@ -108,15 +158,25 @@ while True:
                 insertBook([userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity])
 
             elif (userRequest == '3') or (userRequest.lower() == 'remover'):
-                    userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - Id\n>> '))
+                    userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - ISBN\n3 - Id\n>> '))
 
                     if (userRemoveBy == '1') or (userRemoveBy.lower() == 'título'):
                         userRemoveName = str(input('Título do livro:\n>> '))
                         removeBook = searchBookBy('title', userRemoveName)
 
                         removeBookBy('_id', removeBook)
+                    
+                    elif (userRemoveBy == '2') or (userRemoveBy.lower() == 'isbn'):
+                        userRemoveISBN = str(input('ISBN do livro:\n>> '))
+                        
+                        try:
+                            removeBook = searchBookBy('ISBN', userRemoveISBN)
+                            removeBookBy('ISBN', removeBook)
 
-                    elif (userRemoveBy == '2') or (userRemoveBy.lower() == 'id'):
+                        except Exception as e:
+                            print(f'ISBN inválido: {e}')
+
+                    elif (userRemoveBy == '3') or (userRemoveBy.lower() == 'id'):
                         userRemoveId = str(input('Id do livro\n>> '))
 
                         try:
@@ -139,7 +199,7 @@ while True:
         userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os usuários\n2 - Voltar\n\n>> '))
 
         if (userRequest == '1') or (userRequest.lower() == 'consultar'):
-            print('\nEm desenvolvimento...\n')
+            pass
 
         elif (userRequest == '2') or (userRequest.lower() == 'voltar'):
             pass

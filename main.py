@@ -23,8 +23,22 @@ db = client['LibraryManager']
 collectionBooks = db['books']
 collectionUsers = db['users']
 
-def insertBook(bookInfo):
-    #bookInfo = [userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity]
+def insertBook():
+    while True:
+        try:
+            userTitle = str(input('\nDigite o título do livro: '))
+            userAuthor = str(input('Digite o autor do livro: '))
+            userGenre = str(input('Digite o gênero do livro: '))
+            userYear = int(input('Digite o ano de publicação: '))
+            userISBN = str(input('Digite o ISBN do livro: '))
+            userQuantity = int(input('Digite a quantidade de exemplares disponíveis: '))
+            break
+        
+        except:
+            print('\nAlgum dos valores digitados é inválido, tente novamente.')
+    
+    bookInfo = [userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity]
+                
     for info in bookInfo:
         if info == '':
             print('Nenhum dos campos pode ser vazio')
@@ -83,9 +97,23 @@ def removeBookBy(removeBy, removeBook):
             print('\nRemoção cancelada.')
         
     else:
-        print('Livro não encontrado')
+        print('\nLivro não encontrado')
 
-def insertUser(userInfo):
+def insertUser():
+
+    while True:
+        try:
+            userName = str(input('\nDigite o nome do usuário: '))
+            userEmail = str(input('Digite o E-mail : '))
+            userBirth = str(input('Digite a data de nascimento (dd/mm/aaaa): '))
+            userCPF = str(input('Digite o CPF do usuário: '))
+            break
+
+        except:
+            print('\nAlgum dos valores digitados é inválido, tente novamente.')
+
+    userInfo = [userName, userEmail, userBirth, userCPF]
+
     for info in userInfo:
         if info == '':
             print('Nenhum dos campos pode ser vazio')
@@ -120,7 +148,7 @@ def removeUserBy(removeBy, removeUser):
             print('\nRemoção cancelada.')
         
     else:
-        print('Usuario não encontrado')
+        print('\nUsuario não encontrado')
 
 def searchUserAll():
     if (collectionUsers.count_documents({}) > 0):
@@ -154,20 +182,7 @@ while True:
                 searchBooksAll()
 
             elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
-                while True:
-                    try:
-                        userTitle = str(input('\nDigite o título do livro: ')),
-                        userAuthor = str(input('Digite o autor do livro: ')),
-                        userGenre = str(input('Digite o gênero do livro: ')),
-                        userYear = int(input('Digite o ano de publicação: ')),
-                        userISBN = str(input('Digite o ISBN do livro: ')),
-                        userQuantity = int(input('Digite a quantidade de exemplares disponíveis: '))
-                        break
-                    
-                    except:
-                        print('\nAlgum dos valores digitados é inválido, tente novamente.')
-                
-                insertBook([userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity])
+                insertBook()
 
             elif (userRequest == '3') or (userRequest.lower() == 'remover'):
                     userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Título\n2 - ISBN\n3 - Id\n>> '))
@@ -215,21 +230,37 @@ while True:
                 searchUserAll()
 
             elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
-                while True:
-                    try:
-                        userName = str(input('\nDigite o nome do usuário: ')),
-                        userEmail = str(input('Digite o E-mail : ')),
-                        userBirth = str(input('Digite a data de nascimento (dd/mm/aaaa): ')),
-                        userCPF = str(input('Digite o CPF do usuário: ')),
-                        break
-
-                    except:
-                        print('\nAlgum dos valores digitados é inválido, tente novamente.')
-                
-                insertUser([userName, userEmail, userBirth, userCPF])
+                insertUser()
 
             elif (userRequest == '3') or (userRequest.lower() == 'remover'):
-                pass
+                userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Nome\n2 - Email\n3 - CPF\n4 - Id\n>> '))
+
+                if (userRemoveBy == '1') or (userRemoveBy.lower() == 'nome'):
+                    userRemoveName = str(input('Nome do usuário:\n>> '))
+                    removeUser = searchUserBy('name', userRemoveName)
+
+                    removeUserBy('name', removeUser)
+
+                elif (userRemoveBy == '2') or (userRemoveBy.lower() == 'email'):
+                    userRemoveEmail = str(input('Email do usuário:\n>> '))
+                    removeUser = searchUserBy('email', userRemoveEmail)
+
+                    removeUserBy('email', removeUser)
+
+                elif (userRemoveBy == '3') or (userRemoveBy.lower() == 'cpf'):
+                    userRemoveCPF = str(input('CPF do usuário:\n>> '))
+                    removeUser = searchUserBy('CPF', userRemoveCPF)
+
+                    removeUserBy('CPF', removeUser)
+
+                elif (userRemoveBy == '4') or (userRemoveBy.lower() == 'id'):
+                    userRemoveId = str(input('Id do usuário\n>> '))
+                    removeUser = searchUserBy('_id', ObjectId(userRemoveId))
+
+                    removeUserBy('_id', removeUser)
+
+                else:
+                    print('\nOpção inválida\n')
 
             elif (userRequest == '4') or (userRequest.lower() == 'voltar'):
                 break
@@ -238,7 +269,7 @@ while True:
                 print('\nOpção inválida\n')
 
     elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
-        print('\nEm desenvolvimento...\n')
+        pass
 
     elif (userRequest == '4') or (userRequest.lower() == 'sair'):
         print('\nAté logo!')

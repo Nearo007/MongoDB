@@ -47,6 +47,7 @@ def searchBooksAll():
         documents = collectionBooks.find()
 
         keyMapping = {
+            '_id': 'ID',
             'title': 'Título',
             'author': 'Autor(a)',
             'genre': 'Gênero',
@@ -54,13 +55,11 @@ def searchBooksAll():
             'ISBN': 'ISBN',
             'quantity': 'Quantidade em Estoque'
         }
-        # Arrumar id no search books
         print('\n')
         for document in documents:
-            print(document['_id'])
-            for key, friendlyName in keyMapping.items():
-                value = document.get(key, 'Informação não disponível')        
-                print(f'{friendlyName} : {value}')
+            for databaseName, friendlyName in keyMapping.items():
+                bookValue = document.get(databaseName, 'Informação não disponível')
+                print(f'{friendlyName} : {bookValue}')
             print('--------\n')
     else:
         print('\nNenhum livro cadastrado.')
@@ -96,7 +95,7 @@ def insertUser(userInfo):
         'name': userInfo[0],
         'email': userInfo[1],
         'birth_date': userInfo[2],
-        'cpf': userInfo[3]
+        'CPF': userInfo[3]
     }
     
     collectionUsers.insert_one(documentUser)
@@ -127,11 +126,18 @@ def searchUserAll():
     if (collectionUsers.count_documents({}) > 0):
         documents = collectionUsers.find()
 
-        print('\n')
+        keyMapping = {
+            '_id': 'Id',
+            'name': 'Nome',
+            'email': 'E-mail',
+            'birth_date': 'Data de Nascimento',
+            'CPF': 'CPF'
+        }
+
         for document in documents:
-            print(document['_id'])
-            for key, value in document.items():
-                print(f'{key} : {value}')
+            for databaseName, friendlyName in keyMapping.items():
+                userValue = document.get(databaseName, 'Informação não disponível')
+                print(f'{friendlyName} : {userValue}')
             print('--------\n')
     else:
         print('\nNenhum usuario cadastrado.')
@@ -148,12 +154,18 @@ while True:
                 searchBooksAll()
 
             elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
-                userTitle = str(input('\nDigite o título do livro: '))
-                userAuthor = str(input('Digite o autor do livro: '))
-                userGenre = str(input('Digite o gênero do livro: '))
-                userYear = str(input('Digite o ano de publicação: '))
-                userISBN = str(input('Digite o ISBN do livro: '))
-                userQuantity = str(input('Digite a quantidade de exemplares disponíveis: '))
+                while True:
+                    try:
+                        userTitle = str(input('\nDigite o título do livro: ')),
+                        userAuthor = str(input('Digite o autor do livro: ')),
+                        userGenre = str(input('Digite o gênero do livro: ')),
+                        userYear = int(input('Digite o ano de publicação: ')),
+                        userISBN = str(input('Digite o ISBN do livro: ')),
+                        userQuantity = int(input('Digite a quantidade de exemplares disponíveis: '))
+                        break
+                    
+                    except:
+                        print('\nAlgum dos valores digitados é inválido, tente novamente.')
                 
                 insertBook([userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity])
 
@@ -196,16 +208,34 @@ while True:
                 print('\nOpção inválida\n')
 
     elif (userRequest == '2') or (userRequest.lower() == 'usuários'):
-        userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os usuários\n2 - Voltar\n\n>> '))
+        while True:
+            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os usuários\n2 - Adicionar usuário\n3 - Remover usuário\n4 - Voltar\n\n>> '))
 
-        if (userRequest == '1') or (userRequest.lower() == 'consultar'):
-            pass
+            if (userRequest == '1') or (userRequest.lower() == 'consultar'):
+                searchUserAll()
 
-        elif (userRequest == '2') or (userRequest.lower() == 'voltar'):
-            pass
+            elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
+                while True:
+                    try:
+                        userName = str(input('\nDigite o nome do usuário: ')),
+                        userEmail = str(input('Digite o E-mail : ')),
+                        userBirth = str(input('Digite a data de nascimento (dd/mm/aaaa): ')),
+                        userCPF = str(input('Digite o CPF do usuário: ')),
+                        break
 
-        else:
-            print('\nOpção inválida\n')
+                    except:
+                        print('\nAlgum dos valores digitados é inválido, tente novamente.')
+                
+                insertUser([userName, userEmail, userBirth, userCPF])
+
+            elif (userRequest == '3') or (userRequest.lower() == 'remover'):
+                pass
+
+            elif (userRequest == '4') or (userRequest.lower() == 'voltar'):
+                break
+
+            else:
+                print('\nOpção inválida\n')
 
     elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
         print('\nEm desenvolvimento...\n')

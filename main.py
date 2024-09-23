@@ -295,7 +295,7 @@ while True:
                 insertLoan()
 
             elif (userRequest == '3') or (userRequest.lower() == 'remover'):
-                removeLoan()
+                removeLoanBy()
 
             elif (userRequest == '4') or (userRequest.lower() == 'voltar'):
                 break

@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from bson import ObjectId
+from datetime import datetime
 import sys
 
 while True:
@@ -22,6 +23,7 @@ db = client['LibraryManager']
 
 collectionBooks = db['books']
 collectionUsers = db['users']
+collectionLoans = db['loans']
 
 def insertBook():
     while True:
@@ -56,6 +58,9 @@ def insertBook():
     collectionBooks.insert_one(documentBook)
     print('\nLivro cadastrado com sucesso!')
 
+def searchBookBy(key, value):
+    return collectionBooks.find_one({key: value})
+
 def searchBooksAll():
     if (collectionBooks.count_documents({}) > 0):
         documents = collectionBooks.find()
@@ -78,9 +83,6 @@ def searchBooksAll():
     else:
         print('\nNenhum livro cadastrado.')
 
-def searchBookBy(key, value):
-    return collectionBooks.find_one({key: value})
-
 def removeBookBy(removeBy, removeBook):
     if (removeBook):    
         userConfirm = str(input(f'\nDigite CONFIRMAR para remover este livro:\n, {removeBook}\n>> '))
@@ -100,12 +102,15 @@ def removeBookBy(removeBy, removeBook):
         print('\nLivro não encontrado')
 
 def insertUser():
-
     while True:
         try:
             userName = str(input('\nDigite o nome do usuário: '))
             userEmail = str(input('Digite o E-mail : '))
-            userBirth = str(input('Digite a data de nascimento (dd/mm/aaaa): '))
+
+            userDate = str(input('Digite a data de nascimento (DD-MM-AAAA) ou (DD/MM/AAAA): '))
+            userDate = userDate.replace('/', '-')
+
+            userBirth = datetime.strptime(userDate, '%d-%m-%Y')
             userCPF = str(input('Digite o CPF do usuário: '))
             break
 
@@ -132,24 +137,6 @@ def insertUser():
 def searchUserBy(key, value):
     return collectionUsers.find_one({key: value})
 
-def removeUserBy(removeBy, removeUser):
-    if (removeUser):    
-        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este usuario:\n, {removeUser}\n>> '))
-
-        if userConfirm.lower() == 'confirmar':
-            try:
-                collectionUsers.delete_one({removeBy: removeUser[removeBy]})
-                print('\nUsuario removido com sucesso')
-
-            except:
-                print('\nAlgo deu errado...')
-        
-        else:
-            print('\nRemoção cancelada.')
-        
-    else:
-        print('\nUsuario não encontrado')
-
 def searchUserAll():
     if (collectionUsers.count_documents({}) > 0):
         documents = collectionUsers.find()
@@ -169,7 +156,36 @@ def searchUserAll():
             print('--------\n')
     else:
         print('\nNenhum usuario cadastrado.')
+
+def removeUserBy(removeBy, removeUser):
+    if (removeUser):    
+        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este usuario:\n, {removeUser}\n>> '))
+
+        if userConfirm.lower() == 'confirmar':
+            try:
+                collectionUsers.delete_one({removeBy: removeUser[removeBy]})
+                print('\nUsuario removido com sucesso')
+
+            except:
+                print('\nAlgo deu errado...')
+        
+        else:
+            print('\nRemoção cancelada.')
+        
+    else:
+        print('\nUsuario não encontrado')
     
+def insertLoan():
+    pass
+
+def searchLoanBy(key, value):
+    pass
+
+def searchLoanAll():
+    pass
+
+def removeLoanBy(removeBy, removeLoan):
+    pass
 
 while True:
     userRequest = str(input("\nO quê deseja consultar?\n1 - Livros\n2 - Usuários\n3 - Empréstimos\n4 - Sair\n\n>> "))
@@ -269,7 +285,20 @@ while True:
                 print('\nOpção inválida\n')
 
     elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
-        pass
+        while True:
+            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Adicionar empréstimo\n3 - Remover empréstimo\n4 - Voltar\n\n>> '))
+
+            if (userRequest == '1') or (userRequest.lower() == 'consultar'):
+                searchLoanAll()
+
+            elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
+                insertLoan()
+
+            elif (userRequest == '3') or (userRequest.lower() == 'remover'):
+                removeLoan()
+
+            elif (userRequest == '4') or (userRequest.lower() == 'voltar'):
+                break
 
     elif (userRequest == '4') or (userRequest.lower() == 'sair'):
         print('\nAté logo!')

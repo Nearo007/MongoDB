@@ -80,6 +80,21 @@ def searchBooksAll():
     else:
         print('\nNenhum livro cadastrado.')
 
+def updateBookBy(updateBy, updateBook):
+    if (updateBook):
+        userConfirm = str(input(f'\nDigite CONFIRMAR para atualizar este livro:\n, {updateBook}\n>> '))
+
+        if userConfirm.lower() == 'confirmar':
+            try:
+                dataType = type(updateBook[updateBy])
+                updateBook[updateBy] = dataType(input('Digite o novo valor: '))
+
+            except ValueError:
+                print('\nErro de conversão. Verifique o dado inserido e tente novamente.')
+
+            except Exception as e:
+                print(f'\nAlgo deu errado: {str(e)}')
+
 def removeBookBy(removeBy, removeBook):
     if (removeBook):    
         userConfirm = str(input(f'\nDigite CONFIRMAR para remover este livro:\n, {removeBook}\n>> '))
@@ -90,7 +105,7 @@ def removeBookBy(removeBy, removeBook):
                 print('\nLivro removido com sucesso')
 
             except:
-                print('\nAlgo deu errado...')
+                print(f'\nAlgo deu errado: {str(e)}')
         
         else:
             print('\nRemoção cancelada.')
@@ -154,6 +169,21 @@ def searchUserAll():
     else:
         print('\nNenhum usuario cadastrado.')
 
+def updateUserBy(updateBy, updateUser):
+    if (updateUser):
+        userConfirm = str(input(f'\nDigite CONFIRMAR para atualizar este usuário:\n, {updateUser}\n>> '))
+
+        if userConfirm.lower() == 'confirmar':
+            try:
+                dataType = type(updateUser[updateBy])
+                updateUser[updateBy] = dataType(input('Digite o novo valor: '))
+
+            except ValueError:
+                print('\nErro de conversão. Verifique o dado inserido e tente novamente.')
+
+            except Exception as e:
+                print(f'\nAlgo deu errado: {str(e)}')
+
 def removeUserBy(removeBy, removeUser):
     if (removeUser):    
         userConfirm = str(input(f'\nDigite CONFIRMAR para remover este usuario:\n, {removeUser}\n>> '))
@@ -179,6 +209,9 @@ def searchLoanBy(key, value):
     pass
 
 def searchLoanAll():
+    pass
+
+def updateLoanBy(updateBy, updateLoan):
     pass
 
 def removeLoanBy(removeBy, removeLoan):

@@ -22,9 +22,9 @@ collectionBooks = db['books']
 collectionUsers = db['users']
 collectionLoans = db['loans']
 
-def updateCollection(databaseName, userNewInfo, friendlyName):
-    resultado = collectionBooks.update_one(
-        {databaseName: updateBook[databaseName]},
+def updateCollection(database, updateDocument, databaseName, userNewInfo, friendlyName):
+    resultado = database.update_one(
+        {databaseName: updateDocument[databaseName]},
         {'$set': {databaseName: userNewInfo}}
     )
 
@@ -112,27 +112,15 @@ def updateBookBy(updateBook):
             try:
                 if (userUpdateBy == '1') or (userUpdateBy.lower() == 'título'):
                     userNewInfo = str(input('Digite o novo título: '))
+                    updateCollection(collectionBooks, updateBook, 'title', userNewInfo, 'Título')
 
-                    updateCollection('title', userNewInfo, 'Título')
-                    """
-                    resultado = collectionBooks.update_one(
-                        {'title': updateBook['title']},
-                        {'$set': {'title': userNewInfo}}
-                    )
-
-                    if resultado.modified_count > 0:
-                        print("\nLivro atualizado com sucesso")
-                    
-                    else:
-                        print("\nNenhum livro encontrado")
-                    """
                 elif (userUpdateBy == '2') or (userUpdateBy.lower() == 'autor'):
                     userNewInfo = str(input('Digite o novo autor: '))
-                    updateCollection('author', userNewInfo, 'Autor(a)')
+                    updateCollection(collectionBooks, updateBook, 'author', userNewInfo, 'Autor(a)')
 
                 elif (userUpdateBy == '3') or (userUpdateBy.lower() == 'gênero'):
                     userNewInfo = str(input('Digite o novo gênero: '))
-                    updateCollection('genre', userNewInfo, 'Gênero')
+                    updateCollection(collectionBooks, updateBook, 'genre', userNewInfo, 'Gênero')
 
                 elif (userUpdateBy == '4') or (userUpdateBy.lower() == 'data'):
                     userNewInfo = int(input('Digite a novo ano (AAAA): '))
@@ -143,15 +131,15 @@ def updateBookBy(updateBook):
                     elif userNewInfo < 0:
                         raise ValueError
 
-                    updateCollection('year', userNewInfo, 'Ano de Publicação')
+                    updateCollection(collectionBooks, updateBook, 'year', userNewInfo, 'Ano de Publicação')
 
                 elif (userUpdateBy == '5') or (userUpdateBy.lower() == 'isbn'):
                     userNewInfo = str(input('Digite o novo ISBN: '))
-                    updateCollection('ISBN', userNewInfo, 'ISBN')
+                    updateCollection(collectionBooks, updateBook, 'ISBN', userNewInfo, 'ISBN')
 
                 elif (userUpdateBy == '6') or (userUpdateBy.lower() == 'quantidade'):
                     userNewInfo = str(input('Digite a nova quantidade: '))
-                    updateCollection('quantity', userNewInfo, 'Quantidade em Estoque')
+                    updateCollection(collectionBooks, updateBook, 'quantity', userNewInfo, 'Quantidade em Estoque')
 
             except Exception as e:
                 print(f'\nAlgo deu errado: {str(e)}')
@@ -184,7 +172,14 @@ def insertUser():
             userDate = userDate.replace('/', '-')
 
             userBirth = datetime.strptime(userDate, '%d-%m-%Y')
+            
             userCPF = str(input('Digite o CPF do usuário: '))
+            userCPFcheck = userCPF.replace('.', '')
+            userCPFcheck = userCPFcheck.replace('-', '')
+
+            if len(userCPFcheck) != 11:
+                raise ValueError
+
             break
 
         except:
@@ -230,8 +225,48 @@ def searchUserAll():
     else:
         print('\nNenhum usuario cadastrado.')
 
-def updateUserBy(updateBy, updateUser):
-    pass
+def updateUserBy(updateUser):
+    if (updateUser):
+        print(updateUser)
+
+        userUpdateBy = str(input('\nDeseja atualizar qual informação?\n1 - Nome\n2 - E-mail\n3 - Data de nascimento\n4 - CPF\n>> '))
+
+        try:
+            if (userUpdateBy == '1') or (userUpdateBy.lower() == 'nome'):
+                userNewInfo = str(input('Digite o novo nome: '))
+                updateCollection(collectionUsers, updateUser, 'name', userNewInfo, 'Nome')
+
+            elif (userUpdateBy == '2') or (userUpdateBy.lower() == 'email'):
+                userNewInfo = str(input('Digite o novo e-mail: '))
+                updateCollection(collectionUsers, updateUser, 'email', userNewInfo, 'E-mail')
+
+            elif (userUpdateBy == '3') or (userUpdateBy.lower() == 'data de nascimento'):
+                userDate = str(input('Digite a nova data de nascimento (DD-MM-AAAA) ou (DD/MM/AAAA): '))
+                userDate = userDate.replace('/', '-')
+                userNewInfo = datetime.strptime(userDate, '%d-%m-%Y')
+
+                if userNewInfo > datetime.now():
+                    raise ValueError
+                
+                elif userNewInfo < datetime.min:
+                    raise ValueError
+            
+                updateCollection(collectionUsers, updateUser, 'birth_date', userNewInfo, 'Data de Nascimento')
+
+            elif (userUpdateBy == '4') or (userUpdateBy.lower() == 'cpf'):
+                userNewInfo = str(input('Digite o novo CPF: '))
+                userCPFcheck = userNewInfo.replace('.', '')
+                userCPFcheck = userNewInfo.replace('-', '')
+                if len(userCPFcheck) != 11:
+                    raise ValueError
+
+                updateCollection(collectionUsers, updateUser, 'CPF', userNewInfo, 'CPF')
+
+            else:
+                raise ValueError
+        
+        except Exception as e:
+            print(f'\nAlgo deu errado: {str(e)}')
 
 def removeUserBy(removeBy, removeUser):
     if (removeUser):    
@@ -366,23 +401,23 @@ while True:
                 if (userSearchBy == '1') or (userSearchBy.lower() == 'nome'):
                     userUpdateName = str(input('Nome do usuário:\n>> '))
 
-                    updateUserBy = searchUserBy('name', userUpdateName)
+                    updateUser = searchUserBy('name', userUpdateName)
 
                 elif (userSearchBy == '2') or (userSearchBy.lower() == 'email'):
                     userUpdateEmail = str(input('Email do usuário:\n>> '))
 
-                    updateUserBy = searchUserBy('email', userUpdateEmail)
+                    updateUser = searchUserBy('email', userUpdateEmail)
 
                 elif (userSearchBy == '3') or (userSearchBy.lower() == 'cpf'):
                     userUpdateCPF = str(input('CPF do usuário:\n>> '))
 
-                    updateUserBy = searchUserBy('CPF', userUpdateCPF)
+                    updateUser = searchUserBy('CPF', userUpdateCPF)
 
                 elif (userSearchBy == '4') or (userSearchBy.lower() == 'id'):
                     userUpdateId = str(input('Id do usuário:\n>> '))
 
                     try:
-                        updateUserBy = searchUserBy('_id', ObjectId(userUpdateId))
+                        updateUser = searchUserBy('_id', ObjectId(userUpdateId))
 
                     except:
                         print('\nId inválido')
@@ -391,6 +426,12 @@ while True:
                 else:
                     print('\nOpção inválida')
                     continue
+
+                if not updateUser:
+                    print('\nUsuário não encontrado')
+                    continue
+
+                updateUserBy(updateUser)
 
             elif (userRequest == '4') or (userRequest.lower() == 'remover'):
                 userRemoveBy = str(input('Deseja remover por qual idenficador?\n1 - Nome\n2 - Email\n3 - CPF\n4 - Id\n>> '))

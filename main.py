@@ -277,8 +277,8 @@ def removeUserBy(removeBy, removeUser):
                 collectionUsers.delete_one({removeBy: removeUser[removeBy]})
                 print('\nUsuario removido com sucesso')
 
-            except:
-                print('\nAlgo deu errado...')
+            except Exception as e:
+                print(f'\nAlgo deu errado: {e}')
         
         else:
             print('\nRemoção cancelada.')
@@ -287,7 +287,31 @@ def removeUserBy(removeBy, removeUser):
         print('\nUsuario não encontrado')
     
 def insertLoan():
-    pass
+    while True:
+        try:
+            loanBookId = ObjectId(input('\nDigite o id do livro emprestado: '))
+            loanUserId = ObjectId(input('Digite o id do usuário que à emprestar o livro: '))
+            loanDate = datetime.now()
+            break
+
+        except:
+            print('\nAlgum dos valores digitados é inválido, tente novamente.')
+
+    loanInfo = [loanBookId, loanUserId, loanDate]
+
+    for info in loanInfo:
+        if info == '':
+            print('Nenhum dos campos pode ser vazio')
+            return
+        
+    documentLoan = {
+        'book_id': loanInfo[0],
+        'user_id': loanInfo[1],
+        'loan_date': loanInfo[2]
+    }
+    
+    collectionLoans.insert_one(documentLoan)
+    print('\nEmprestimo realizado com sucesso!')
 
 def searchLoanBy(key, value):
     pass

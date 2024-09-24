@@ -168,7 +168,7 @@ def updateBookBy(updateBook):
                     updateCollection(collectionBooks, updateBook, 'ISBN', userNewInfo, 'ISBN')
 
                 elif (userUpdateBy == '6') or (userUpdateBy.lower() == 'quantidade'):
-                    userNewInfo = str(input('Digite a nova quantidade: '))
+                    userNewInfo = int(input('Digite a nova quantidade: '))
                     updateCollection(collectionBooks, updateBook, 'quantity', userNewInfo, 'Quantidade em Estoque')
 
             except Exception as e:
@@ -350,8 +350,14 @@ def removeUserBy(removeUser):
 def insertLoan():
     while True:
         try:
-            loanBookId = ObjectId(input('\nDigite o id do livro emprestado: '))
-            loanUserId = ObjectId(input('Digite o id do usuário que à emprestar o livro: '))
+            print('\nInsira os dados do emprestimo:')
+            book = searchBookBy()
+            print(book)
+            loanBookId = book['_id']
+
+            user = searchUserBy()
+            print(user)
+            loanUserId = user['_id']
             loanDate = datetime.now()
             break
 
@@ -364,7 +370,14 @@ def insertLoan():
         if info == '':
             print('Nenhum dos campos pode ser vazio')
             return
-        
+    
+    if (book['quantity'] == 0):
+        print('\nLivro indisponível')
+        return
+    
+    book['quantity'] -= 1
+    collectionBooks.update_one({'_id': book['_id']}, {'$set': {'quantity': book['quantity']}})
+
     documentLoan = {
         'book_id': loanInfo[0],
         'user_id': loanInfo[1],
@@ -374,16 +387,32 @@ def insertLoan():
     collectionLoans.insert_one(documentLoan)
     print('\nEmprestimo realizado com sucesso!')
 
-def searchLoanBy(key, value):
+def searchLoanBy():
     pass
 
 def searchLoanAll():
+    if (collectionLoans.count_documents({}) > 0):
+        documents = collectionLoans.find()
+
+        keyMapping = {
+            '_id': 'Id',
+            'book_id': 'Id do Livro',
+            'user_id': 'Id do Usuário',
+            'loan_date': 'Data de Empréstimo',
+        }
+
+        for document in documents:
+            for databaseName, friendlyName in keyMapping.items():
+                loanValue = document.get(databaseName, 'Informação não disponível')
+                print(f'{friendlyName} : {loanValue}')
+            print('--------\n')
+    else:
+        print('\nNenhum empréstimo cadastrado.')
+
+def updateLoanBy(updateLoan):
     pass
 
-def updateLoanBy(updateBy, updateLoan):
-    pass
-
-def removeLoanBy(removeBy, removeLoan):
+def removeLoanBy(removeLoan):
     pass
 
 while True:

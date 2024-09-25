@@ -368,12 +368,10 @@ def insertLoan():
         print('\nInsira os dados do emprestimo:')
         user = searchUserBy()
         print(user)
-        loanUserName = user['name']
         loanUserId = user['_id']
         
         book = searchBookBy()
         print(book)
-        loanBookTitle = book['title']
         loanBookId = book['_id']
 
         loanDate = datetime.now()
@@ -382,7 +380,7 @@ def insertLoan():
         print('\nAlgum dos valores digitados é inválido, tente novamente.')
         return
 
-    loanInfo = [loanUserName, loanUserId, loanBookTitle, loanBookId, loanDate]
+    loanInfo = [loanUserId, loanBookId, loanDate]
 
     for info in loanInfo:
         if info == '':
@@ -397,18 +395,19 @@ def insertLoan():
     collectionBooks.update_one({'_id': book['_id']}, {'$set': {'quantity': book['quantity']}})
 
     documentLoan = {
-        'user_name': loanInfo[0],
-        'user_id': loanInfo[1],
-        'book_title': loanInfo[2],
-        'book_id': loanInfo[3],
-        'loan_date': loanInfo[4]
+        'user_id': loanInfo[0],
+        'book_id': loanInfo[1],
+        'loan_date': loanInfo[2]
     }
     
     collectionLoans.insert_one(documentLoan)
     print('\nEmprestimo realizado com sucesso!')
 
+def userSearchLoanBy():
+    pass
+
 def searchLoanBy():
-    userSearchBy = str(input('\nDeseja pesquisar o emprestimo por qual idenficador?\n1 - Id do empréstimo\n2 - Id do Usuário\n3 - Id do Livro\n>> '))
+    userSearchBy = str(input('\nDeseja pesquisar o emprestimo por qual idenficador?\nDigite o Id do empréstimo\n\n>> '))
 
     if (userSearchBy == '1') or (userSearchBy.lower() == 'empréstimo'):
         try:
@@ -417,26 +416,10 @@ def searchLoanBy():
             return documentLoan
         except:
             print('\nId inválido')
-    
-    elif (userSearchBy == '2') or (userSearchBy.lower() == 'usuario'):
-        try:
-            userId = str(input('\nDigite o Id do Usuário: '))
-            documentsLoan = collectionLoans.find({'user_id': ObjectId(userId)})
-            return documentsLoan
-        except:
-            print('\nId inválido')
-
-    elif (userSearchBy == '3') or (userSearchBy.lower() == 'livro'):
-        try:
-            bookId = str(input('\nDigite o Id do Livro: '))
-            documentsLoan = collectionLoans.find({'book_id': ObjectId(bookId)})
-            return documentsLoan
-        except:
-            print('\nId inválido')
 
     else:
         print('\nOpção inválida')
-        documentsLoan = None
+        documentLoan = None
         return
 
 def searchLoanAll():
@@ -445,23 +428,26 @@ def searchLoanAll():
 
         keyMapping = {
             '_id': 'Id',
-            'user_name': 'Nome do Usuário',
             'user_id': 'Id do Usuário',
-            'book_title': 'Titulo do Livro',
             'book_id': 'Id do Livro',
             'loan_date': 'Data de Empréstimo',
         }
 
         for document in documents:
+            userId = document['user_id']
+            userName = collectionUsers.find_one({'_id': userId})['name']
+
+            bookId = document['book_id']
+            bookTitle = collectionBooks.find_one({'_id': bookId})['title']
+
             for databaseName, friendlyName in keyMapping.items():
                 loanValue = document.get(databaseName, 'Informação não disponível')
                 print(f'{friendlyName} : {loanValue}')
+            print(f'Nome do Usuário : {userName}')
+            print(f'Título do Livro : {bookTitle}')
             print('--------\n')
     else:
         print('\nNenhum empréstimo cadastrado.')
-
-def updateLoanBy(updateLoan):
-    pass
 
 def removeLoanBy(removeLoan):
     if (removeLoan):

@@ -348,21 +348,21 @@ def removeUserBy(removeUser):
             print('\nRemoção cancelada.')
     
 def insertLoan():
-    while True:
-        try:
-            print('\nInsira os dados do emprestimo:')
-            book = searchBookBy()
-            print(book)
-            loanBookId = book['_id']
+    try:
+        print('\nInsira os dados do emprestimo:')
+        user = searchUserBy()
+        print(user)
+        loanUserId = user['_id']
+        
+        book = searchBookBy()
+        print(book)
+        loanBookId = book['_id']
 
-            user = searchUserBy()
-            print(user)
-            loanUserId = user['_id']
-            loanDate = datetime.now()
-            break
+        loanDate = datetime.now()
 
-        except:
-            print('\nAlgum dos valores digitados é inválido, tente novamente.')
+    except:
+        print('\nAlgum dos valores digitados é inválido, tente novamente.')
+        return
 
     loanInfo = [loanBookId, loanUserId, loanDate]
 
@@ -388,7 +388,36 @@ def insertLoan():
     print('\nEmprestimo realizado com sucesso!')
 
 def searchLoanBy():
-    pass
+    userSearchBy = str(input('\nDeseja pesquisar o emprestimo por qual idenficador?\n1 - Id do empréstimo\n2 - Id do Usuário\n3 - Id do Livro\n>> '))
+
+    if (userSearchBy == '1') or (userSearchBy.lower() == 'empréstimo'):
+        try:
+            loanId = str(input('\nDigite o Id do emprestimo: '))
+            documentLoan = collectionLoans.find_one({'_id': ObjectId(loanId)})
+            return documentLoan
+        except:
+            print('\nId inválido')
+    
+    elif (userSearchBy == '2') or (userSearchBy.lower() == 'usuario'):
+        try:
+            userId = str(input('\nDigite o Id do Usuário: '))
+            documentsLoan = collectionLoans.find({'user_id': ObjectId(userId)})
+            return documentsLoan
+        except:
+            print('\nId inválido')
+
+    elif (userSearchBy == '3') or (userSearchBy.lower() == 'livro'):
+        try:
+            bookId = str(input('\nDigite o Id do Livro: '))
+            documentsLoan = collectionLoans.find({'book_id': ObjectId(bookId)})
+            return documentsLoan
+        except:
+            print('\nId inválido')
+
+    else:
+        print('\nOpção inválida')
+        documentsLoan = None
+        return
 
 def searchLoanAll():
     if (collectionLoans.count_documents({}) > 0):
@@ -413,7 +442,20 @@ def updateLoanBy(updateLoan):
     pass
 
 def removeLoanBy(removeLoan):
-    pass
+    if (removeLoan):
+        loanConfirm = str(input(f'\nDigite CONFIRMAR para remover este empréstimo:\n{removeLoan}\n>> '))
+
+        if loanConfirm.lower() == 'confirmar':
+            try:
+                bookId = removeLoan['book_id']
+                currentQuantity = collectionBooks.find_one({'_id': bookId})['quantity']
+
+                collectionBooks.update_one({'_id': bookId}, {'$set': {'quantity': currentQuantity + 1}})
+                collectionLoans.delete_one({'_id': removeLoan['_id']})
+                print('\nEmprestimo removido com sucesso')
+
+            except Exception as e:
+                print(f'\nAlgo deu errado: {e}')
 
 while True:
     userRequest = str(input("\nO quê deseja consultar?\n1 - Livros\n2 - Usuários\n3 - Empréstimos\n4 - Sair\n\n>> "))
@@ -468,16 +510,17 @@ while True:
 
     elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
         while True:
-            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Adicionar empréstimo\n3 - Remover empréstimo\n4 - Voltar\n\n>> '))
+            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Abrir empréstimo\n3 - Encerrar empréstimo\n4 - Voltar\n\n>> '))
 
             if (userRequest == '1') or (userRequest.lower() == 'consultar'):
                 searchLoanAll()
 
-            elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
+            elif (userRequest == '2') or (userRequest.lower() == 'abrir'):
                 insertLoan()
 
-            elif (userRequest == '3') or (userRequest.lower() == 'remover'):
-                removeLoanBy()
+            elif (userRequest == '3') or (userRequest.lower() == 'encerrar'):
+                removeLoan = searchLoanBy()
+                removeLoanBy(removeLoan)
 
             elif (userRequest == '4') or (userRequest.lower() == 'voltar'):
                 break

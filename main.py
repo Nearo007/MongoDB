@@ -39,25 +39,28 @@ def updateCollection(database, updateDocument, databaseName, userNewInfo, friend
             print(f"\nNenhum {friendlyName.lower()} encontrado")
 
 def insertBook():
-    while True:
-        try:
-            userTitle = str(input('\nDigite o título do livro: '))
-            userAuthor = str(input('Digite o autor do livro: '))
-            userGenre = str(input('Digite o gênero do livro: '))
-            userYear = int(input('Digite o ano de publicação: '))
+    try:
+        userTitle = str(input('\nDigite o título do livro: '))
+        userAuthor = str(input('Digite o autor do livro: '))
+        userGenre = str(input('Digite o gênero do livro: '))
+        userYear = int(input('Digite o ano de publicação: '))
 
-            if userYear > datetime.now().year:
-                raise ValueError
-            
-            elif userYear < 0:
-                raise ValueError
-            
-            userISBN = str(input('Digite o ISBN do livro: '))
-            userQuantity = int(input('Digite a quantidade de exemplares disponíveis: '))
-            break
+        if userYear > datetime.now().year:
+            raise ValueError
         
-        except:
-            print('\nAlgum dos valores digitados é inválido, tente novamente.')
+        elif userYear < 0:
+            raise ValueError
+        
+        userISBN = str(input('Digite o ISBN do livro: '))
+
+        if (collectionBooks.count_documents({'ISBN': userISBN}) > 0):
+            raise ValueError('Este livro já está cadastrado no sistema')
+
+        userQuantity = int(input('Digite a quantidade de exemplares disponíveis: '))
+    
+    except:
+        print('\nAlgum dos valores digitados é inválido, tente novamente.')
+        return
     
     bookInfo = [userTitle, userAuthor, userGenre, userYear, userISBN, userQuantity]
                 
@@ -165,6 +168,10 @@ def updateBookBy(updateBook):
 
                 elif (userUpdateBy == '5') or (userUpdateBy.lower() == 'isbn'):
                     userNewInfo = str(input('Digite o novo ISBN: '))
+
+                    if (collectionBooks.count_documents({'ISBN': userNewInfo}) > 0):
+                        raise ValueError('ISBN ja existente')
+
                     updateCollection(collectionBooks, updateBook, 'ISBN', userNewInfo, 'ISBN')
 
                 elif (userUpdateBy == '6') or (userUpdateBy.lower() == 'quantidade'):
@@ -190,27 +197,28 @@ def removeBookBy(removeBook):
             print('\nRemoção cancelada.')
 
 def insertUser():
-    while True:
-        try:
-            userName = str(input('\nDigite o nome do usuário: '))
-            userEmail = str(input('Digite o E-mail : '))
+    try:
+        userName = str(input('\nDigite o nome do usuário: '))
+        userEmail = str(input('Digite o E-mail : '))
 
-            userDate = str(input('Digite a data de nascimento (DD-MM-AAAA) ou (DD/MM/AAAA): '))
-            userDate = userDate.replace('/', '-')
+        userDate = str(input('Digite a data de nascimento (DD-MM-AAAA) ou (DD/MM/AAAA): '))
+        userDate = userDate.replace('/', '-')
 
-            userBirth = datetime.strptime(userDate, '%d-%m-%Y')
-            
-            userCPF = str(input('Digite o CPF do usuário: '))
-            userCPFcheck = userCPF.replace('.', '')
-            userCPFcheck = userCPFcheck.replace('-', '')
+        userBirth = datetime.strptime(userDate, '%d-%m-%Y')
+        
+        userCPF = str(input('Digite o CPF do usuário: '))
+        userCPFcheck = userCPF.replace('.', '')
+        userCPFcheck = userCPFcheck.replace('-', '')
 
-            if len(userCPFcheck) != 11:
-                raise ValueError
+        if (collectionUsers.count_documents({'CPF': userCPF}) > 0):
+            raise ValueError('CPF ja existente')
 
-            break
+        if len(userCPFcheck) != 11:
+            raise ValueError('CPF inválido')
 
-        except:
-            print('\nAlgum dos valores digitados é inválido, tente novamente.')
+    except Exception as e:
+        print(f'\nAlgo deu errado: {str(e)}')
+        return
 
     userInfo = [userName, userEmail, userBirth, userCPF]
 
@@ -321,8 +329,12 @@ def updateUserBy(updateUser):
                 userNewInfo = str(input('Digite o novo CPF: '))
                 userCPFcheck = userNewInfo.replace('.', '')
                 userCPFcheck = userNewInfo.replace('-', '')
+
+                if (collectionUsers.count_documents({'CPF': userNewInfo}) > 0):
+                    raise ValueError('Este CPF está sendo usado por outro usuário')
+
                 if len(userCPFcheck) != 11:
-                    raise ValueError
+                    raise ValueError('CPF inválido')
 
                 updateCollection(collectionUsers, updateUser, 'CPF', userNewInfo, 'CPF')
 
@@ -352,10 +364,12 @@ def insertLoan():
         print('\nInsira os dados do emprestimo:')
         user = searchUserBy()
         print(user)
+        loanUserName = user['name']
         loanUserId = user['_id']
         
         book = searchBookBy()
         print(book)
+        loanBookTitle = book['title']
         loanBookId = book['_id']
 
         loanDate = datetime.now()
@@ -364,7 +378,7 @@ def insertLoan():
         print('\nAlgum dos valores digitados é inválido, tente novamente.')
         return
 
-    loanInfo = [loanBookId, loanUserId, loanDate]
+    loanInfo = [loanUserName, loanUserId, loanBookTitle, loanBookId, loanDate]
 
     for info in loanInfo:
         if info == '':
@@ -379,9 +393,11 @@ def insertLoan():
     collectionBooks.update_one({'_id': book['_id']}, {'$set': {'quantity': book['quantity']}})
 
     documentLoan = {
-        'book_id': loanInfo[0],
+        'user_name': loanInfo[0],
         'user_id': loanInfo[1],
-        'loan_date': loanInfo[2]
+        'book_title': loanInfo[2],
+        'book_id': loanInfo[3],
+        'loan_date': loanInfo[4]
     }
     
     collectionLoans.insert_one(documentLoan)
@@ -425,8 +441,10 @@ def searchLoanAll():
 
         keyMapping = {
             '_id': 'Id',
-            'book_id': 'Id do Livro',
+            'user_name': 'Nome do Usuário',
             'user_id': 'Id do Usuário',
+            'book_title': 'Titulo do Livro',
+            'book_id': 'Id do Livro',
             'loan_date': 'Data de Empréstimo',
         }
 
@@ -458,11 +476,11 @@ def removeLoanBy(removeLoan):
                 print(f'\nAlgo deu errado: {e}')
 
 while True:
-    userRequest = str(input("\nO quê deseja consultar?\n1 - Livros\n2 - Usuários\n3 - Empréstimos\n4 - Sair\n\n>> "))
+    userRequest = str(input("\nO quê deseja consultar?\n1 - Livros\n2 - Usuários\n3 - Empréstimos\n\nDeixe em branco para sair\n\n>> "))
     
     if (userRequest == '1') or (userRequest.lower() == 'livros'):
         while True:
-            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Atualizar livro\n4 - Remover livro\n5 - Voltar\n\n>> '))
+            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Atualizar livro\n4 - Remover livro\n\nDeixe em branco para voltar\n\n>> '))
 
             if (userRequest == '1') or (userRequest.lower() == 'consultar'):
                 searchBooksAll()
@@ -478,7 +496,7 @@ while True:
                 removeBook = searchBookBy()
                 removeBookBy(removeBook)
 
-            elif (userRequest == '5') or (userRequest.lower() == 'voltar'):
+            elif (userRequest == ''):
                 break
 
             else:
@@ -486,7 +504,7 @@ while True:
 
     elif (userRequest == '2') or (userRequest.lower() == 'usuários'):
         while True:
-            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os usuários\n2 - Adicionar usuário\n3 - Atualizar usuário\n4 - Remover usuário\n5 - Voltar\n\n>> '))
+            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os usuários\n2 - Adicionar usuário\n3 - Atualizar usuário\n4 - Remover usuário\n\nDeixe em branco para voltar\n\n>> '))
 
             if (userRequest == '1') or (userRequest.lower() == 'consultar'):
                 searchUserAll()
@@ -502,7 +520,7 @@ while True:
                 removeUser = searchUserBy()
                 removeUserBy(removeUser)
 
-            elif (userRequest == '5') or (userRequest.lower() == 'voltar'):
+            elif (userRequest == ''):
                 break
 
             else:
@@ -510,7 +528,7 @@ while True:
 
     elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
         while True:
-            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Abrir empréstimo\n3 - Encerrar empréstimo\n4 - Voltar\n\n>> '))
+            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Abrir empréstimo\n3 - Encerrar empréstimo\n\nDeixe em branco para voltar\n\n>> '))
 
             if (userRequest == '1') or (userRequest.lower() == 'consultar'):
                 searchLoanAll()
@@ -522,13 +540,13 @@ while True:
                 removeLoan = searchLoanBy()
                 removeLoanBy(removeLoan)
 
-            elif (userRequest == '4') or (userRequest.lower() == 'voltar'):
+            elif (userRequest == ''):
                 break
 
             else:
                 print('\nOpção inválida\n')
 
-    elif (userRequest == '4') or (userRequest.lower() == 'sair'):
+    elif (userRequest.lower() == ''):
         print('\nAté logo!')
         break
 

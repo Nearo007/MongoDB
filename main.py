@@ -82,7 +82,7 @@ def insertBook():
     print('\nLivro cadastrado com sucesso!')
 
 def searchBookBy():
-    userSearchBy = str(input('\nDeseja pesquisar o livro por qual idenficador?\n1 - Título\n2 - ISBN\n3 - Id\n>> '))
+    userSearchBy = str(input('\nDeseja pesquisar o livro por qual idenficador?\n1 - Título\n2 - ISBN\n3 - Id\n\nDeixe em branco para cancelar:\n>> '))
     if (userSearchBy == '1') or (userSearchBy.lower() == 'título'):
         userSearchTitle = str(input('Título do livro:\n>> '))
 
@@ -102,6 +102,10 @@ def searchBookBy():
         except:
             print('\nId inválido')
             searchBook = None
+
+    elif userSearchBy.strip() == '':
+        searchBook = None
+        return searchBook
 
     else:
         print('\nOpção inválida')
@@ -475,80 +479,92 @@ def removeLoanBy(removeLoan):
             except Exception as e:
                 print(f'\nAlgo deu errado: {e}')
 
-while True:
-    userRequest = str(input("\nO quê deseja consultar?\n1 - Livros\n2 - Usuários\n3 - Empréstimos\n\nDeixe em branco para sair\n\n>> "))
-    
-    if (userRequest == '1') or (userRequest.lower() == 'livros'):
-        while True:
-            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Atualizar livro\n4 - Remover livro\n\nDeixe em branco para voltar\n\n>> '))
+def main():
+    while True:
+        try:
+            userRequest = str(input("\nO quê deseja consultar?\n1 - Livros\n2 - Usuários\n3 - Empréstimos\n\nDeixe em branco para sair:\n\n>> "))
+            
+            if (userRequest == '1') or (userRequest.lower() == 'livros'):
+                while True:
+                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Atualizar livro\n4 - Remover livro\n\nDeixe em branco para voltar:\n\n>> '))
 
-            if (userRequest == '1') or (userRequest.lower() == 'consultar'):
-                searchBooksAll()
+                    if (userRequest == '1') or (userRequest.lower() == 'consultar'):
+                        searchBooksAll()
 
-            elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
-                insertBook()
+                    elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
+                        insertBook()
 
-            elif (userRequest == '3') or (userRequest.lower() == 'atualizar'):
-                updateBook = searchBookBy()
-                updateBookBy(updateBook)
+                    elif (userRequest == '3') or (userRequest.lower() == 'atualizar'):
+                        updateBook = searchBookBy()
+                        updateBookBy(updateBook)
 
-            elif (userRequest == '4') or (userRequest.lower() == 'remover'):
-                removeBook = searchBookBy()
-                removeBookBy(removeBook)
+                    elif (userRequest == '4') or (userRequest.lower() == 'remover'):
+                        removeBook = searchBookBy()
+                        removeBookBy(removeBook)
 
-            elif (userRequest == ''):
+                    elif (userRequest.strip() == ''):
+                        break
+
+                    else:
+                        print('\nOpção inválida\n')
+
+            elif (userRequest == '2') or (userRequest.lower() == 'usuários'):
+                while True:
+                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os usuários\n2 - Adicionar usuário\n3 - Atualizar usuário\n4 - Remover usuário\n\nDeixe em branco para voltar:\n\n>> '))
+
+                    if (userRequest == '1') or (userRequest.lower() == 'consultar'):
+                        searchUserAll()
+
+                    elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
+                        insertUser()
+
+                    elif (userRequest == '3') or (userRequest.lower() == 'atualizar'):
+                        updateUser = searchUserBy()
+                        updateUserBy(updateUser)
+
+                    elif (userRequest == '4') or (userRequest.lower() == 'remover'):
+                        removeUser = searchUserBy()
+                        removeUserBy(removeUser)
+
+                    elif (userRequest.strip() == ''):
+                        break
+
+                    else:
+                        print('\nOpção inválida\n')
+
+            elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
+                while True:
+                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Abrir empréstimo\n3 - Encerrar empréstimo\n\nDeixe em branco para voltar:\n\n>> '))
+
+                    if (userRequest == '1') or (userRequest.lower() == 'consultar'):
+                        searchLoanAll()
+
+                    elif (userRequest == '2') or (userRequest.lower() == 'abrir'):
+                        insertLoan()
+
+                    elif (userRequest == '3') or (userRequest.lower() == 'encerrar'):
+                        removeLoan = searchLoanBy()
+                        removeLoanBy(removeLoan)
+
+                    elif (userRequest.strip() == ''):
+                        break
+
+                    else:
+                        print('\nOpção inválida\n')
+
+            elif (userRequest.strip() == ''):
+                print('\nAté logo!')
                 break
 
             else:
                 print('\nOpção inválida\n')
 
-    elif (userRequest == '2') or (userRequest.lower() == 'usuários'):
-        while True:
-            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os usuários\n2 - Adicionar usuário\n3 - Atualizar usuário\n4 - Remover usuário\n\nDeixe em branco para voltar\n\n>> '))
+        except KeyboardInterrupt:
+            print('\nAté logo!')
+            break
 
-            if (userRequest == '1') or (userRequest.lower() == 'consultar'):
-                searchUserAll()
+        except Exception as e:
+            print(f'\nAlgo deu errado: {e}')
 
-            elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
-                insertUser()
-
-            elif (userRequest == '3') or (userRequest.lower() == 'atualizar'):
-                updateUser = searchUserBy()
-                updateUserBy(updateUser)
-
-            elif (userRequest == '4') or (userRequest.lower() == 'remover'):
-                removeUser = searchUserBy()
-                removeUserBy(removeUser)
-
-            elif (userRequest == ''):
-                break
-
-            else:
-                print('\nOpção inválida\n')
-
-    elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
-        while True:
-            userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Abrir empréstimo\n3 - Encerrar empréstimo\n\nDeixe em branco para voltar\n\n>> '))
-
-            if (userRequest == '1') or (userRequest.lower() == 'consultar'):
-                searchLoanAll()
-
-            elif (userRequest == '2') or (userRequest.lower() == 'abrir'):
-                insertLoan()
-
-            elif (userRequest == '3') or (userRequest.lower() == 'encerrar'):
-                removeLoan = searchLoanBy()
-                removeLoanBy(removeLoan)
-
-            elif (userRequest == ''):
-                break
-
-            else:
-                print('\nOpção inválida\n')
-
-    elif (userRequest.lower() == ''):
-        print('\nAté logo!')
-        break
-
-    else:
-        print('\nOpção inválida\n')
+if __name__ == '__main__':
+    main()

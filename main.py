@@ -439,6 +439,7 @@ def searchLoanByPeriod():
                     print(f'{friendlyName} : {loanValue}')
             print(f'Nome do Usuário : {userName}')
             print(f'Título do Livro : {bookTitle}')
+            print('--------\n')
     
     except Exception as e:
         print(f'\nAlgo deu errado: {str(e)}')

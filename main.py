@@ -403,8 +403,45 @@ def insertLoan():
     collectionLoans.insert_one(documentLoan)
     print('\nEmprestimo realizado com sucesso!')
 
-def userSearchLoanBy():
-    pass
+def searchLoanByPeriod():
+    try:
+        print('\nDigite o intervalo de tempo:\n>> ')
+        
+        fromDate = input('Data inicial (DD-MM-AAAA) ou (DD/MM/AAAA): ')
+        fromDate = fromDate.replace('/', '-')
+        fromDate = datetime.strptime(fromDate, '%d-%m-%Y')
+
+        toDate = input('Data final (DD-MM-AAAA) ou (DD/MM/AAAA): ')
+        toDate = toDate.replace('/', '-')
+        toDate = datetime.strptime(toDate, '%d-%m-%Y')
+
+        documents = collectionLoans.find({})
+        
+        keyMapping = {
+            '_id': 'Id',
+            'user_id': 'Id do Usuário',
+            'book_id': 'Id do Livro',
+            'loan_date': 'Data de Empréstimo',
+        }
+        
+        print('\n')
+        for document in documents:
+            userId = document['user_id']
+            userName = collectionUsers.find_one({'_id': userId})['name']
+
+            bookId = document['book_id']
+            bookTitle = collectionBooks.find_one({'_id': bookId})['title']
+
+            for databaseName, friendlyName in keyMapping.items():
+                loan_date = document['loan_date']
+                loanValue = document.get(databaseName, 'Informação não disponível')
+                if fromDate <= loan_date <= toDate:
+                    print(f'{friendlyName} : {loanValue}')
+            print(f'Nome do Usuário : {userName}')
+            print(f'Título do Livro : {bookTitle}')
+    
+    except Exception as e:
+        print(f'\nAlgo deu errado: {str(e)}')
 
 def searchLoanBy():
     userSearchBy = str(input('\nDeseja pesquisar o emprestimo por qual idenficador?\nDigite o Id do empréstimo\n\n>> '))
@@ -433,6 +470,7 @@ def searchLoanAll():
             'loan_date': 'Data de Empréstimo',
         }
 
+        print('\n')
         for document in documents:
             userId = document['user_id']
             userName = collectionUsers.find_one({'_id': userId})['name']
@@ -520,15 +558,18 @@ def main():
 
             elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
                 while True:
-                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Abrir empréstimo\n3 - Encerrar empréstimo\n\nDeixe em branco para voltar:\n\n>> '))
+                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Consultar empréstimos por periodo\n3 - Abrir empréstimo\n4 - Encerrar empréstimo\n\nDeixe em branco para voltar:\n\n>> '))
 
                     if (userRequest == '1') or (userRequest.lower() == 'consultar'):
                         searchLoanAll()
 
-                    elif (userRequest == '2') or (userRequest.lower() == 'abrir'):
+                    elif (userRequest == '2') or (userRequest.lower() == 'periodo'):
+                        searchLoanByPeriod()
+
+                    elif (userRequest == '3') or (userRequest.lower() == 'abrir'):
                         insertLoan()
 
-                    elif (userRequest == '3') or (userRequest.lower() == 'encerrar'):
+                    elif (userRequest == '4') or (userRequest.lower() == 'encerrar'):
                         removeLoan = searchLoanBy()
                         removeLoanBy(removeLoan)
 

@@ -1,10 +1,9 @@
-return book date in loan document creation
-
 search for pending loans for specifc user
 search for user with pending loans
-register return date instead of deleting loan document
 document explaining the code.
 
 
 DONE:
 add see available books
+return book date in loan document creation
+register return date instead of deleting loan document

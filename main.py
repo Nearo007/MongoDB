@@ -46,7 +46,7 @@ loanKeyMapping = {
     'user_id': 'Id do Usuário',
     'book_id': 'Id do Livro',
     'loan_date': 'Data de Empréstimo',
-    'return_date': 'Data de Devolução'
+    'to_return_date': 'Data prevista de Devolução',
 }
 
 def updateCollection(database, updateDocument, databaseName, userNewInfo, friendlyName):
@@ -397,6 +397,22 @@ def removeUserBy(removeUser):
         else:
             print('\nRemoção cancelada.')
     
+def checkLoanPending(loanDocument):
+    if (loanDocument['returned_date'] == None) and (loanDocument['to_return_date'] > datetime.now()):
+        print('O empréstimo está ativo, aguardando devolução...')
+    
+    elif (loanDocument['returned_date'] == None) and (loanDocument['to_return_date'] < datetime.now()):
+        print('O empréstimo expirou e não foi devolvido.')
+
+    elif (loanDocument['returned_date'] != None) and (loanDocument['to_return_date'] > loanDocument['returned_date']):
+        print('O empréstimo foi devolvido dentro do prazo.')
+
+    elif (loanDocument['returned_date'] != None) and (loanDocument['to_return_date'] < loanDocument['returned_date']):
+        print('O empréstimo foi devolvido fora do prazo.')
+    
+    else:
+        print('Houve um erro na busca.')
+
 def insertLoan():
     try:
         print('\nInsira os dados do emprestimo:')
@@ -409,13 +425,14 @@ def insertLoan():
         loanBookId = book['_id']
 
         loanDate = datetime.now()
-        returnDate = datetime.now() + relativedelta(months=1)
+        toReturnDate = datetime.now() + relativedelta(months=1)
+        returnedDate = None
 
     except:
         print('\nAlgum dos valores digitados é inválido, tente novamente.')
         return
 
-    loanInfo = [loanUserId, loanBookId, loanDate, returnDate]
+    loanInfo = [loanUserId, loanBookId, loanDate, toReturnDate, returnedDate]
 
     for info in loanInfo:
         if info == '':
@@ -433,7 +450,8 @@ def insertLoan():
         'user_id': loanInfo[0],
         'book_id': loanInfo[1],
         'loan_date': loanInfo[2],
-        'return_date': loanInfo[3]
+        'to_return_date': loanInfo[3],
+        'returned_date': loanInfo[4]
     }
     
     collectionLoans.insert_one(documentLoan)
@@ -468,6 +486,9 @@ def searchLoanByPeriod():
                     print(f'{friendlyName} : {loanValue}')
             print(f'Nome do Usuário : {userName}')
             print(f'Título do Livro : {bookTitle}')
+
+            checkLoanPending(document)
+            
             print('--------\n')
     
     except Exception as e:
@@ -502,9 +523,44 @@ def searchLoanAll():
                 print(f'{friendlyName} : {loanValue}')
             print(f'Nome do Usuário : {userName}')
             print(f'Título do Livro : {bookTitle}')
+
+            checkLoanPending(document)
+
             print('--------\n')
     else:
         print('\nNenhum empréstimo cadastrado.')
+
+def finishLoanBy(finishLoan):
+    if (finishLoan):
+        userId = finishLoan['user_id']
+        userName = collectionUsers.find_one({'_id': userId})['name']
+
+        bookId = finishLoan['book_id']
+        bookTitle = collectionBooks.find_one({'_id': bookId})['title']
+
+        print('\n')
+        for databaseName, friendlyName in loanKeyMapping.items():
+            loanValue = finishLoan.get(databaseName, 'Informação não disponível')
+            print(f'{friendlyName} : {loanValue}')
+        print(f'Nome do Usuário : {userName}')
+        print(f'Título do Livro : {bookTitle}')
+
+        checkLoanPending(finishLoan)
+
+        userConfirm = str(input('\nDigite CONFIRMAR para finalizar o empréstimo acima:\n>> '))
+
+        if (userConfirm.lower() == 'confirmar'):
+            try:
+                bookId = finishLoan['book_id']
+                currentQuantity = collectionBooks.find_one({'_id': bookId})['quantity']
+
+                collectionBooks.update_one({'_id': bookId}, {'$set': {'quantity': currentQuantity + 1}})
+
+                collectionLoans.update_one({'_id': finishLoan['_id']}, {'$set': {'returned_date': datetime.now()}})
+                print('\nEmprestimo finalizado com sucesso!')
+            
+            except:
+                print('\nAlgo deu errado, tente novamente.')
 
 def removeLoanBy(removeLoan):
     if (removeLoan):
@@ -520,11 +576,12 @@ def removeLoanBy(removeLoan):
             print(f'{friendlyName} : {loanValue}')
         print(f'Nome do Usuário : {userName}')
         print(f'Título do Livro : {bookTitle}')
+
+        checkLoanPending(removeLoan)
         
+        userConfirm = str(input('\nDigite CONFIRMAR para remover o empréstimo acima:\n>> '))
 
-        loanConfirm = str(input('\nDigite CONFIRMAR para remover o empréstimo acima:\n>> '))
-
-        if loanConfirm.lower() == 'confirmar':
+        if userConfirm.lower() == 'confirmar':
             try:
                 bookId = removeLoan['book_id']
                 currentQuantity = collectionBooks.find_one({'_id': bookId})['quantity']
@@ -594,7 +651,7 @@ def main():
 
             elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
                 while True:
-                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Consultar empréstimos por periodo\n3 - Abrir empréstimo\n4 - Encerrar empréstimo\n\nDeixe em branco para voltar:\n\n>> '))
+                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Consultar empréstimos por período\n3 - Abrir empréstimo\n4 - Finalizar empréstimo\n5 - Remover empréstimo do sistema\n\nDeixe em branco para voltar:\n\n>> '))
 
                     if (userRequest == '1') or (userRequest.lower() == 'consultar'):
                         searchLoanAll()
@@ -605,7 +662,11 @@ def main():
                     elif (userRequest == '3') or (userRequest.lower() == 'abrir'):
                         insertLoan()
 
-                    elif (userRequest == '4') or (userRequest.lower() == 'encerrar'):
+                    elif (userRequest == '4') or (userRequest.lower() == 'finalizar'):
+                        finishLoan = searchLoanBy()
+                        finishLoanBy(finishLoan)
+
+                    elif (userRequest == '5') or (userRequest.lower() == 'remover'):
                         removeLoan = searchLoanBy()
                         removeLoanBy(removeLoan)
 

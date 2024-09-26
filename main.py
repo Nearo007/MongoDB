@@ -517,6 +517,9 @@ def searchLoanByPeriod():
         toDate = toDate.replace('/', '-')
         toDate = datetime.strptime(toDate, '%d-%m-%Y')
 
+        if fromDate > toDate:
+            raise ValueError('Intervalo de tempo inválido')
+
         documents = collectionLoans.find({})
         
         print('\n')

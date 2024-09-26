@@ -49,6 +49,11 @@ loanKeyMapping = {
     'to_return_date': 'Data prevista de Devolução',
 }
 
+def friendlyPrint(document, keyMapping):
+    for databaseName, friendlyName in keyMapping.items():
+        value = document.get(databaseName, 'Informação não disponível')
+        print(f'{friendlyName} : {value}')
+
 def updateCollection(database, updateDocument, databaseName, userNewInfo, friendlyName):
     resultado = database.update_one(
         {databaseName: updateDocument[databaseName]},
@@ -149,11 +154,8 @@ def searchBooksAll():
     if (collectionBooks.count_documents({}) > 0):
         documents = collectionBooks.find()
 
-        print('\n')
         for document in documents:
-            for databaseName, friendlyName in bookKeyMapping.items():
-                bookValue = document.get(databaseName, 'Informação não disponível')
-                print(f'{friendlyName} : {bookValue}')
+            friendlyPrint(document, bookKeyMapping)
             print('--------\n')
     else:
         print('\nNenhum livro cadastrado.')
@@ -165,9 +167,7 @@ def showAvailableBooks():
         print('\n')
         for document in documents:
             if document['quantity'] > 0:
-                for databaseName, friendlyName in bookKeyMapping.items():
-                    bookValue = document.get(databaseName, 'Informação não disponível')
-                    print(f'{friendlyName} : {bookValue}')
+                friendlyPrint(document, bookKeyMapping)
                 print('--------\n')
     else:
         print('\nNenhum livro cadastrado.')
@@ -220,9 +220,7 @@ def updateBookBy(updateBook):
 def removeBookBy(removeBook):
     if (removeBook):
         print('\n')
-        for databaseName, friendlyName in bookKeyMapping.items():
-            bookValue = removeBook.get(databaseName, 'Informação não disponível')
-            print(f'{friendlyName} : {bookValue}')
+        friendlyPrint(removeBook, bookKeyMapping)
 
         userConfirm = str(input('\nDigite CONFIRMAR para remover o livro acima:\n>> '))
 
@@ -323,9 +321,7 @@ def searchUserAll():
         documents = collectionUsers.find()
 
         for document in documents:
-            for databaseName, friendlyName in userKeyMapping.items():
-                userValue = document.get(databaseName, 'Informação não disponível')
-                print(f'{friendlyName} : {userValue}')
+            friendlyPrint(document, userKeyMapping)
             print('--------\n')
     else:
         print('\nNenhum usuario cadastrado.')
@@ -343,12 +339,9 @@ def searchUserLoans(user):
             bookId = document['book_id']
             bookTitle = collectionBooks.find_one({'_id': bookId})['title']
 
-            for databaseName, friendlyName in loanKeyMapping.items():
-                loanValue = document.get(databaseName, 'Informação não disponível')
-                print(f'{friendlyName} : {loanValue}')
+            friendlyPrint(document, loanKeyMapping)
             print(f'Nome do Usuário : {userName}')
             print(f'Título do Livro : {bookTitle}')
-
             checkLoanPending(document)
 
             print('--------\n')
@@ -369,10 +362,7 @@ def searchUserExpired():
         print('\n')
         for userId in usersSet:
             userDocument = collectionUsers.find_one({'_id': userId})
-
-            for databaseName, friendlyName in userKeyMapping.items():
-                userValue = userDocument.get(databaseName, 'Informação não disponível')
-                print(f'{friendlyName} : {userValue}')
+            friendlyPrint(userDocument, userKeyMapping)
             print('--------\n')
 
     else:
@@ -428,9 +418,7 @@ def updateUserBy(updateUser):
 def removeUserBy(removeUser):
     if (removeUser):
         print('\n')
-        for databaseName, friendlyName in userKeyMapping.items():
-            userValue = removeUser.get(databaseName, 'Informação não disponível')
-            print(f'{friendlyName} : {userValue}')
+        friendlyPrint(removeUser, userKeyMapping)
 
         userConfirm = str(input('\nDigite CONFIRMAR para remover o usuario acima:\n>> '))
 
@@ -532,14 +520,10 @@ def searchLoanByPeriod():
 
             loan_date = document['loan_date']
             if fromDate <= loan_date <= toDate:
-                for databaseName, friendlyName in loanKeyMapping.items():
-                    loanValue = document.get(databaseName, 'Informação não disponível')
-                    print(f'{friendlyName} : {loanValue}')
+                friendlyPrint(document, loanKeyMapping)
                 print(f'Nome do Usuário : {userName}')
                 print(f'Título do Livro : {bookTitle}')
-
-                checkLoanPending(document)
-                
+                checkLoanPending(document)                
                 print('--------\n')
     
     except Exception as e:
@@ -569,12 +553,9 @@ def searchLoanAll():
             bookId = document['book_id']
             bookTitle = collectionBooks.find_one({'_id': bookId})['title']
 
-            for databaseName, friendlyName in loanKeyMapping.items():
-                loanValue = document.get(databaseName, 'Informação não disponível')
-                print(f'{friendlyName} : {loanValue}')
+            friendlyPrint(document, loanKeyMapping)
             print(f'Nome do Usuário : {userName}')
             print(f'Título do Livro : {bookTitle}')
-
             checkLoanPending(document)
 
             print('--------\n')
@@ -590,9 +571,7 @@ def finishLoanBy(finishLoan):
         bookTitle = collectionBooks.find_one({'_id': bookId})['title']
 
         print('\n')
-        for databaseName, friendlyName in loanKeyMapping.items():
-            loanValue = finishLoan.get(databaseName, 'Informação não disponível')
-            print(f'{friendlyName} : {loanValue}')
+        friendlyPrint(finishLoan, loanKeyMapping)
         print(f'Nome do Usuário : {userName}')
         print(f'Título do Livro : {bookTitle}')
 
@@ -622,9 +601,7 @@ def removeLoanBy(removeLoan):
         bookTitle = collectionBooks.find_one({'_id': bookId})['title']
 
         print('\n')
-        for databaseName, friendlyName in loanKeyMapping.items():
-            loanValue = removeLoan.get(databaseName, 'Informação não disponível')
-            print(f'{friendlyName} : {loanValue}')
+        friendlyPrint(removeLoan, loanKeyMapping)
         print(f'Nome do Usuário : {userName}')
         print(f'Título do Livro : {bookTitle}')
 

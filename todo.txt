@@ -1,4 +1,3 @@
-search for pending loans for specifc user
 document explaining the code.
 
 
@@ -7,3 +6,4 @@ add see available books
 return book date in loan document creation
 register return date instead of deleting loan document
 search for users with expired loans
+search for pending loans for specifc user

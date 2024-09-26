@@ -330,6 +330,29 @@ def searchUserAll():
     else:
         print('\nNenhum usuario cadastrado.')
 
+def searchUserLoans(user):
+    if (user):
+        loanDocuments = collectionLoans.find({'user_id': user['_id']})
+
+        print('\n')
+
+        for document in loanDocuments:
+            userId = document['user_id']
+            userName = collectionUsers.find_one({'_id': userId})['name']
+
+            bookId = document['book_id']
+            bookTitle = collectionBooks.find_one({'_id': bookId})['title']
+
+            for databaseName, friendlyName in loanKeyMapping.items():
+                loanValue = document.get(databaseName, 'Informação não disponível')
+                print(f'{friendlyName} : {loanValue}')
+            print(f'Nome do Usuário : {userName}')
+            print(f'Título do Livro : {bookTitle}')
+
+            checkLoanPending(document)
+
+            print('--------\n')
+        
 def searchUserExpired():
     if (collectionUsers.count_documents({}) > 0):
         loanDocuments = collectionLoans.find({'returned_date': None,'to_return_date': {'$lt': datetime.now()}})
@@ -652,22 +675,26 @@ def main():
 
             elif (userRequest == '2') or (userRequest.lower() == 'usuários'):
                 while True:
-                    userRequest = str(input('\nQual função deseja realizar?\n1 - Listar todos os usuários\n2 - Consultar usuários com empréstimos vencidos\n3 - Adicionar usuário\n4 - Atualizar usuário\n5 - Remover usuário\n\nDeixe em branco para voltar:\n\n>> '))
+                    userRequest = str(input('\nQual função deseja realizar?\n1 - Listar todos os usuários\n2 - Empréstimos de um usuário específico\n3 - Consultar usuários com empréstimos vencidos\n4 - Adicionar usuário\n5 - Atualizar usuário\n6 - Remover usuário\n\nDeixe em branco para voltar:\n\n>> '))
 
                     if (userRequest == '1') or (userRequest.lower() == 'Listar'):
                         searchUserAll()
+
+                    elif (userRequest == '2') or (userRequest.lower() == 'especifico'):
+                        specificUser = searchUserBy()
+                        searchUserLoans(specificUser)
                     
-                    elif (userRequest == '2') or (userRequest.lower() == 'vencidos'):
+                    elif (userRequest == '3') or (userRequest.lower() == 'vencidos'):
                         searchUserExpired()
 
-                    elif (userRequest == '3') or (userRequest.lower() == 'adicionar'):
+                    elif (userRequest == '4') or (userRequest.lower() == 'adicionar'):
                         insertUser()
 
-                    elif (userRequest == '4') or (userRequest.lower() == 'atualizar'):
+                    elif (userRequest == '5') or (userRequest.lower() == 'atualizar'):
                         updateUser = searchUserBy()
                         updateUserBy(updateUser)
 
-                    elif (userRequest == '5') or (userRequest.lower() == 'remover'):
+                    elif (userRequest == '6') or (userRequest.lower() == 'remover'):
                         removeUser = searchUserBy()
                         removeUserBy(removeUser)
 

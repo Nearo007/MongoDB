@@ -117,17 +117,17 @@ def main():
     def searchBookBy():
         userSearchBy = str(input('\nDeseja pesquisar o livro por qual idenficador?\n1 - Título\n2 - ISBN\n3 - Id\n\nDeixe em branco para cancelar:\n>> '))
         if (userSearchBy == '1') or (userSearchBy.lower() == 'título'):
-            userSearchTitle = str(input('Título do livro:\n>> '))
+            userSearchTitle = str(input('\nTítulo do livro:\n>> '))
 
             searchBook = collectionBooks.find_one({'title': userSearchTitle})
 
         elif (userSearchBy == '2') or (userSearchBy.lower() == 'isbn'):
-            userSearchISBN = str(input('ISBN do livro:\n>> '))
+            userSearchISBN = str(input('\nSBN do livro:\n>> '))
 
             searchBook = collectionBooks.find_one({'ISBN': userSearchISBN})
 
         elif (userSearchBy == '3') or (userSearchBy.lower() == 'id'):
-            userSearchId = str(input('Id do livro:\n>> '))
+            userSearchId = str(input('\nId do livro:\n>> '))
 
             try:
                 searchBook = collectionBooks.find_one({'_id': ObjectId(userSearchId)})
@@ -175,7 +175,8 @@ def main():
 
     def updateBookBy(updateBook):
         if (updateBook):
-                print(f'\n{updateBook}') 
+                print('\n')
+                friendlyPrint(updateBook, bookKeyMapping)
 
                 userUpdateBy = str(input('\nDeseja atualizar qual informação?\n1 - Título\n2 - Autor\n3 - Gênero\n4 - Data de publicação\n5 - ISBN\n6 - Quantidade\n>> '))
 
@@ -281,22 +282,22 @@ def main():
         userSearchBy = str(input('\nDeseja pesquisar o usuário por qual idenficador?\n1 - Nome\n2 - Email\n3 - CPF\n4 - Id\n>> '))
 
         if (userSearchBy == '1') or (userSearchBy.lower() == 'nome'):
-            userSearchName = str(input('Nome do usuário:\n>> '))
+            userSearchName = str(input('\nNome do usuário:\n>> '))
 
             searchUser = collectionUsers.find_one({'name': userSearchName})
 
         elif (userSearchBy == '2') or (userSearchBy.lower() == 'email'):
-            userSearchEmail = str(input('Email do usuário:\n>> '))
+            userSearchEmail = str(input('\nEmail do usuário:\n>> '))
 
             searchUser = collectionUsers.find_one({'email': userSearchEmail})
 
         elif (userSearchBy == '3') or (userSearchBy.lower() == 'cpf'):
-            userSearchCPF = str(input('CPF do usuário:\n>> '))
+            userSearchCPF = str(input('\nCPF do usuário:\n>> '))
 
             searchUser = collectionUsers.find_one({'CPF': userSearchCPF})
 
         elif (userSearchBy == '4') or (userSearchBy.lower() == 'id'):
-            userSearchId = str(input('Id do livro:\n>> '))
+            userSearchId = str(input('\nId do livro:\n>> '))
 
             try:
                 searchUser = collectionUsers.find_one({'_id': ObjectId(userSearchId)})

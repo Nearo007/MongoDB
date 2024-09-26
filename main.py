@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 import os
 import sys
@@ -210,7 +211,7 @@ def updateBookBy(updateBook):
 
 def removeBookBy(removeBook):
     if (removeBook):    
-        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este livro:\n, {removeBook}\n>> '))
+        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este livro:\n, {removeBook}\n\n>> '))
 
         if userConfirm.lower() == 'confirmar':
             try:
@@ -373,7 +374,7 @@ def updateUserBy(updateUser):
 
 def removeUserBy(removeUser):
     if (removeUser):    
-        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este usuario:\n, {removeUser}\n>> '))
+        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este usuario:\n, {removeUser}\n\n>> '))
 
         if userConfirm.lower() == 'confirmar':
             try:
@@ -398,12 +399,13 @@ def insertLoan():
         loanBookId = book['_id']
 
         loanDate = datetime.now()
+        returnDate = datetime.now() + relativedelta(months=1)
 
     except:
         print('\nAlgum dos valores digitados é inválido, tente novamente.')
         return
 
-    loanInfo = [loanUserId, loanBookId, loanDate]
+    loanInfo = [loanUserId, loanBookId, loanDate, returnDate]
 
     for info in loanInfo:
         if info == '':
@@ -420,7 +422,8 @@ def insertLoan():
     documentLoan = {
         'user_id': loanInfo[0],
         'book_id': loanInfo[1],
-        'loan_date': loanInfo[2]
+        'loan_date': loanInfo[2],
+        'return_date': loanInfo[3]
     }
     
     collectionLoans.insert_one(documentLoan)
@@ -445,6 +448,7 @@ def searchLoanByPeriod():
             'user_id': 'Id do Usuário',
             'book_id': 'Id do Livro',
             'loan_date': 'Data de Empréstimo',
+            'return_date': 'Data de Devolução'
         }
         
         print('\n')
@@ -468,20 +472,16 @@ def searchLoanByPeriod():
         print(f'\nAlgo deu errado: {str(e)}')
 
 def searchLoanBy():
-    userSearchBy = str(input('\nDeseja pesquisar o emprestimo por qual idenficador?\nDigite o Id do empréstimo\n\n>> '))
+    try:
+        loanId = str(input('\nDigite o Id do emprestimo: '))
+        documentLoan = collectionLoans.find_one({'_id': ObjectId(loanId)})
+        return documentLoan
+    
+    except:
+        print('\nId inválido')
 
-    if (userSearchBy == '1') or (userSearchBy.lower() == 'empréstimo'):
-        try:
-            loanId = str(input('\nDigite o Id do emprestimo: '))
-            documentLoan = collectionLoans.find_one({'_id': ObjectId(loanId)})
-            return documentLoan
-        except:
-            print('\nId inválido')
-
-    else:
-        print('\nOpção inválida')
         documentLoan = None
-        return
+        return documentLoan
 
 def searchLoanAll():
     if (collectionLoans.count_documents({}) > 0):
@@ -492,6 +492,7 @@ def searchLoanAll():
             'user_id': 'Id do Usuário',
             'book_id': 'Id do Livro',
             'loan_date': 'Data de Empréstimo',
+            'return_date': 'Data de Devolução'
         }
 
         print('\n')
@@ -513,7 +514,7 @@ def searchLoanAll():
 
 def removeLoanBy(removeLoan):
     if (removeLoan):
-        loanConfirm = str(input(f'\nDigite CONFIRMAR para remover este empréstimo:\n{removeLoan}\n>> '))
+        loanConfirm = str(input(f'\nDigite CONFIRMAR para remover este empréstimo:\n{removeLoan}\n\n>> '))
 
         if loanConfirm.lower() == 'confirmar':
             try:

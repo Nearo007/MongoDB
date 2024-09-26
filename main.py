@@ -140,6 +140,29 @@ def searchBooksAll():
     else:
         print('\nNenhum livro cadastrado.')
 
+def showAvailableBooks():
+    if (collectionBooks.count_documents({}) > 0):
+        documents = collectionBooks.find()
+
+        keyMapping = {
+            '_id': 'ID',
+            'title': 'Título',
+            'author': 'Autor(a)',
+            'genre': 'Gênero',
+            'year': 'Ano de Publicação',
+            'ISBN': 'ISBN',
+            'quantity': 'Quantidade em Estoque'
+        }
+        print('\n')
+        for document in documents:
+            if document['quantity'] > 0:
+                for databaseName, friendlyName in keyMapping.items():
+                    bookValue = document.get(databaseName, 'Informação não disponível')
+                    print(f'{friendlyName} : {bookValue}')
+                print('--------\n')
+    else:
+        print('\nNenhum livro cadastrado.')
+
 def updateBookBy(updateBook):
     if (updateBook):
             print(f'\n{updateBook}') 
@@ -511,19 +534,22 @@ def main():
             
             if (userRequest == '1') or (userRequest.lower() == 'livros'):
                 while True:
-                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os livros\n2 - Adicionar livro\n3 - Atualizar livro\n4 - Remover livro\n\nDeixe em branco para voltar:\n\n>> '))
+                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar livros disponíveis\n2 - Listar todos os livros\n3 - Adicionar livro\n4 - Atualizar livro\n5 - Remover livro\n\nDeixe em branco para voltar:\n\n>> '))
 
                     if (userRequest == '1') or (userRequest.lower() == 'consultar'):
+                        showAvailableBooks()
+
+                    elif (userRequest == '2') or (userRequest.lower() == 'listar'):
                         searchBooksAll()
 
-                    elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
+                    elif (userRequest == '3') or (userRequest.lower() == 'adicionar'):
                         insertBook()
 
-                    elif (userRequest == '3') or (userRequest.lower() == 'atualizar'):
+                    elif (userRequest == '4') or (userRequest.lower() == 'atualizar'):
                         updateBook = searchBookBy()
                         updateBookBy(updateBook)
 
-                    elif (userRequest == '4') or (userRequest.lower() == 'remover'):
+                    elif (userRequest == '5') or (userRequest.lower() == 'remover'):
                         removeBook = searchBookBy()
                         removeBookBy(removeBook)
 

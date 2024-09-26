@@ -1,29 +1,31 @@
-from pymongo import MongoClient
-from bson import ObjectId
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from dotenv import load_dotenv
-import os
-import sys
+from pymongo import MongoClient  # Biblioteca para interagir com o MongoDB
+from bson import ObjectId  # Para trabalhar com ObjectId do MongoDB
+from datetime import datetime  # Para manipulação de datas
+from dateutil.relativedelta import relativedelta  # Para calcular intervalos de tempo
+from dotenv import load_dotenv  # Carregar variáveis de ambiente de arquivos .env
+import os  # Para acessar variáveis de ambiente
+import sys  # Para sair do programa em caso de erro
 
 def main():
-    load_dotenv()
-    clusterPassword = os.getenv('CLUSTER_PASSWORD')
-    try:
+    load_dotenv()  # Carrega variáveis de ambiente a partir do arquivo .env
+    clusterPassword = os.getenv('CLUSTER_PASSWORD')  # Pega a senha do cluster a partir das variáveis de ambiente
+    try:  # Tenta conectar ao cluster MongoDB
         client = MongoClient(f'mongodb+srv://Nearo:{clusterPassword}@cluster0.kcsg9.mongodb.net/')
-        db_list = client.list_database_names()
+        db_list = client.list_database_names()   # Lista os bancos de dados disponíveis
         print("\nConexão bem-sucedida!")
 
     except:
-        print("\nErro de conexão: Verifique se a senha e o URI estão corretos.")
+        print("\nErro de conexão: Verifique se a senha e o URI estão corretos.")  # Encerra o programa se houver erro de conexão
         sys.exit()
 
-    db = client['LibraryManager']
-
+    db = client['LibraryManager']  # Seleciona o banco de dados 'LibraryManager'
+    
+    # Seleciona as coleções de livros, usuários e empréstimos
     collectionBooks = db['books']
     collectionUsers = db['users']
     collectionLoans = db['loans']
 
+    # Mapeamentos das chaves do banco para nomes mais amigáveis
     bookKeyMapping = {
         '_id': 'ID',
         'title': 'Título',
@@ -50,17 +52,20 @@ def main():
         'to_return_date': 'Data prevista de Devolução',
     }
 
+    # Função para exibir documentos de forma amigável usando o mapeamento de chaves
     def friendlyPrint(document, keyMapping):
         info = [f'{friendlyName} : {document.get(databaseName, "Informação não disponível")}' 
                 for databaseName, friendlyName in keyMapping.items()]
         print("\n".join(info))
 
+    # Função para atualizar um documento de uma coleção
     def updateCollection(database, updateDocument, databaseName, userNewInfo, friendlyName):
         resultado = database.update_one(
             {databaseName: updateDocument[databaseName]},
             {'$set': {databaseName: userNewInfo}}
         )
 
+        # Verifica se o documento foi modificado
         if resultado.modified_count > 0:
             print(f"\n{friendlyName} atualizado com sucesso")
         
@@ -71,18 +76,21 @@ def main():
             else:
                 print(f"\nNenhum {friendlyName.lower()} encontrado")
 
+
+    # Funções para inserir, buscar, atualizar e remover livros, usuários e empréstimos
+    # O código a seguir implementa essas operações em cada coleção específica
     def insertBook():
+
+        # Pede ao usuário os dados do livro e os insere na coleção
         try:
             userTitle = str(input('\nDigite o título do livro: '))
             userAuthor = str(input('Digite o autor do livro: '))
             userGenre = str(input('Digite o gênero do livro: '))
             userYear = int(input('Digite o ano de publicação: '))
 
-            if userYear > datetime.now().year:
-                raise ValueError
-            
-            elif userYear < 0:
-                raise ValueError
+            # Validação do ano de publicação
+            if (userYear > datetime.now().year) or (userYear < 0):
+                raise ValueError('Ano de publicação inválido')
             
             userISBN = str(input('Digite o ISBN do livro: '))
 
@@ -102,6 +110,7 @@ def main():
                 print('Nenhum dos campos pode ser vazio')
                 return
             
+        # Cria o documento e insere na coleção
         documentBook = {
             'title': bookInfo[0],
             'author': bookInfo[1],
@@ -113,6 +122,9 @@ def main():
 
         collectionBooks.insert_one(documentBook)
         print('\nLivro cadastrado com sucesso!')
+
+        # Outras funções seguem o mesmo padrão: inserção, busca, atualização e remoção.
+        # Cada uma delas manipula os dados da coleção apropriada e fornece feedback para o usuário.
 
     def searchBookBy():
         userSearchBy = str(input('\nDeseja pesquisar o livro por qual idenficador?\n1 - Título\n2 - ISBN\n3 - Id\n\nDeixe em branco para cancelar:\n>> '))
@@ -626,11 +638,14 @@ def main():
     while True:
         try:
             userRequest = str(input("\nO quê deseja consultar?\n1 - Livros\n2 - Usuários\n3 - Empréstimos\n\nDeixe em branco para sair:\n\n>> "))
-            
+
+            # Baseado na escolha do usuário, executa as funções de livros, usuários ou empréstimos            
             if (userRequest == '1') or (userRequest.lower() == 'livros'):
+                
+                # Chama funções relacionadas a livros
                 while True:
                     userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar livros disponíveis\n2 - Listar todos os livros\n3 - Adicionar livro\n4 - Atualizar livro\n5 - Remover livro\n\nDeixe em branco para voltar:\n\n>> '))
-
+                    
                     if (userRequest == '1') or (userRequest.lower() == 'consultar'):
                         showAvailableBooks()
 
@@ -655,6 +670,8 @@ def main():
                         print('\nOpção inválida\n')
 
             elif (userRequest == '2') or (userRequest.lower() == 'usuários'):
+                
+                # Chama funções relacionadas a usuários
                 while True:
                     userRequest = str(input('\nQual função deseja realizar?\n1 - Listar todos os usuários\n2 - Empréstimos de um usuário específico\n3 - Consultar usuários com empréstimos vencidos\n4 - Adicionar usuário\n5 - Atualizar usuário\n6 - Remover usuário\n\nDeixe em branco para voltar:\n\n>> '))
 
@@ -686,6 +703,8 @@ def main():
                         print('\nOpção inválida\n')
 
             elif (userRequest == '3') or (userRequest.lower() == 'empréstimos'):
+
+                # Chama funções relacionadas a empréstimos
                 while True:
                     userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os empréstimos\n2 - Consultar empréstimos por período\n3 - Abrir empréstimo\n4 - Finalizar empréstimo\n5 - Remover empréstimo do sistema\n\nDeixe em branco para voltar:\n\n>> '))
 

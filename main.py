@@ -23,6 +23,32 @@ collectionBooks = db['books']
 collectionUsers = db['users']
 collectionLoans = db['loans']
 
+bookKeyMapping = {
+    '_id': 'ID',
+    'title': 'Título',
+    'author': 'Autor(a)',
+    'genre': 'Gênero',
+    'year': 'Ano de Publicação',
+    'ISBN': 'ISBN',
+    'quantity': 'Quantidade em Estoque'
+}
+
+userKeyMapping = {
+    '_id': 'Id',
+    'name': 'Nome',
+    'email': 'E-mail',
+    'birth_date': 'Data de Nascimento',
+    'CPF': 'CPF'
+}
+
+loanKeyMapping = {
+    '_id': 'Id',
+    'user_id': 'Id do Usuário',
+    'book_id': 'Id do Livro',
+    'loan_date': 'Data de Empréstimo',
+    'return_date': 'Data de Devolução'
+}
+
 def updateCollection(database, updateDocument, databaseName, userNewInfo, friendlyName):
     resultado = database.update_one(
         {databaseName: updateDocument[databaseName]},
@@ -123,18 +149,9 @@ def searchBooksAll():
     if (collectionBooks.count_documents({}) > 0):
         documents = collectionBooks.find()
 
-        keyMapping = {
-            '_id': 'ID',
-            'title': 'Título',
-            'author': 'Autor(a)',
-            'genre': 'Gênero',
-            'year': 'Ano de Publicação',
-            'ISBN': 'ISBN',
-            'quantity': 'Quantidade em Estoque'
-        }
         print('\n')
         for document in documents:
-            for databaseName, friendlyName in keyMapping.items():
+            for databaseName, friendlyName in bookKeyMapping.items():
                 bookValue = document.get(databaseName, 'Informação não disponível')
                 print(f'{friendlyName} : {bookValue}')
             print('--------\n')
@@ -145,19 +162,10 @@ def showAvailableBooks():
     if (collectionBooks.count_documents({}) > 0):
         documents = collectionBooks.find()
 
-        keyMapping = {
-            '_id': 'ID',
-            'title': 'Título',
-            'author': 'Autor(a)',
-            'genre': 'Gênero',
-            'year': 'Ano de Publicação',
-            'ISBN': 'ISBN',
-            'quantity': 'Quantidade em Estoque'
-        }
         print('\n')
         for document in documents:
             if document['quantity'] > 0:
-                for databaseName, friendlyName in keyMapping.items():
+                for databaseName, friendlyName in bookKeyMapping.items():
                     bookValue = document.get(databaseName, 'Informação não disponível')
                     print(f'{friendlyName} : {bookValue}')
                 print('--------\n')
@@ -210,8 +218,13 @@ def updateBookBy(updateBook):
                 print(f'\nAlgo deu errado: {str(e)}')
 
 def removeBookBy(removeBook):
-    if (removeBook):    
-        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este livro:\n, {removeBook}\n\n>> '))
+    if (removeBook):
+        print('\n')
+        for databaseName, friendlyName in bookKeyMapping.items():
+            bookValue = removeBook.get(databaseName, 'Informação não disponível')
+            print(f'{friendlyName} : {bookValue}')
+
+        userConfirm = str(input('\nDigite CONFIRMAR para remover o livro acima:\n>> '))
 
         if userConfirm.lower() == 'confirmar':
             try:
@@ -309,16 +322,8 @@ def searchUserAll():
     if (collectionUsers.count_documents({}) > 0):
         documents = collectionUsers.find()
 
-        keyMapping = {
-            '_id': 'Id',
-            'name': 'Nome',
-            'email': 'E-mail',
-            'birth_date': 'Data de Nascimento',
-            'CPF': 'CPF'
-        }
-
         for document in documents:
-            for databaseName, friendlyName in keyMapping.items():
+            for databaseName, friendlyName in userKeyMapping.items():
                 userValue = document.get(databaseName, 'Informação não disponível')
                 print(f'{friendlyName} : {userValue}')
             print('--------\n')
@@ -373,8 +378,13 @@ def updateUserBy(updateUser):
             print(f'\nAlgo deu errado: {str(e)}')
 
 def removeUserBy(removeUser):
-    if (removeUser):    
-        userConfirm = str(input(f'\nDigite CONFIRMAR para remover este usuario:\n, {removeUser}\n\n>> '))
+    if (removeUser):
+        print('\n')
+        for databaseName, friendlyName in userKeyMapping.items():
+            userValue = removeUser.get(databaseName, 'Informação não disponível')
+            print(f'{friendlyName} : {userValue}')
+
+        userConfirm = str(input('\nDigite CONFIRMAR para remover o usuario acima:\n>> '))
 
         if userConfirm.lower() == 'confirmar':
             try:
@@ -443,14 +453,6 @@ def searchLoanByPeriod():
 
         documents = collectionLoans.find({})
         
-        keyMapping = {
-            '_id': 'Id',
-            'user_id': 'Id do Usuário',
-            'book_id': 'Id do Livro',
-            'loan_date': 'Data de Empréstimo',
-            'return_date': 'Data de Devolução'
-        }
-        
         print('\n')
         for document in documents:
             userId = document['user_id']
@@ -459,7 +461,7 @@ def searchLoanByPeriod():
             bookId = document['book_id']
             bookTitle = collectionBooks.find_one({'_id': bookId})['title']
 
-            for databaseName, friendlyName in keyMapping.items():
+            for databaseName, friendlyName in loanKeyMapping.items():
                 loan_date = document['loan_date']
                 loanValue = document.get(databaseName, 'Informação não disponível')
                 if fromDate <= loan_date <= toDate:
@@ -487,14 +489,6 @@ def searchLoanAll():
     if (collectionLoans.count_documents({}) > 0):
         documents = collectionLoans.find()
 
-        keyMapping = {
-            '_id': 'Id',
-            'user_id': 'Id do Usuário',
-            'book_id': 'Id do Livro',
-            'loan_date': 'Data de Empréstimo',
-            'return_date': 'Data de Devolução'
-        }
-
         print('\n')
         for document in documents:
             userId = document['user_id']
@@ -503,7 +497,7 @@ def searchLoanAll():
             bookId = document['book_id']
             bookTitle = collectionBooks.find_one({'_id': bookId})['title']
 
-            for databaseName, friendlyName in keyMapping.items():
+            for databaseName, friendlyName in loanKeyMapping.items():
                 loanValue = document.get(databaseName, 'Informação não disponível')
                 print(f'{friendlyName} : {loanValue}')
             print(f'Nome do Usuário : {userName}')
@@ -514,7 +508,21 @@ def searchLoanAll():
 
 def removeLoanBy(removeLoan):
     if (removeLoan):
-        loanConfirm = str(input(f'\nDigite CONFIRMAR para remover este empréstimo:\n{removeLoan}\n\n>> '))
+        userId = removeLoan['user_id']
+        userName = collectionUsers.find_one({'_id': userId})['name']
+
+        bookId = removeLoan['book_id']
+        bookTitle = collectionBooks.find_one({'_id': bookId})['title']
+
+        print('\n')
+        for databaseName, friendlyName in loanKeyMapping.items():
+            loanValue = removeLoan.get(databaseName, 'Informação não disponível')
+            print(f'{friendlyName} : {loanValue}')
+        print(f'Nome do Usuário : {userName}')
+        print(f'Título do Livro : {bookTitle}')
+        
+
+        loanConfirm = str(input('\nDigite CONFIRMAR para remover o empréstimo acima:\n>> '))
 
         if loanConfirm.lower() == 'confirmar':
             try:

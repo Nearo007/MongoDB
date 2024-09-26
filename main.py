@@ -330,6 +330,31 @@ def searchUserAll():
     else:
         print('\nNenhum usuario cadastrado.')
 
+def searchUserExpired():
+    if (collectionUsers.count_documents({}) > 0):
+        loanDocuments = collectionLoans.find({'returned_date': None,'to_return_date': {'$lt': datetime.now()}})
+        
+        usersSet = set()
+
+        for document in loanDocuments:    
+            usersSet.add(document['user_id'])
+
+        if len(usersSet) == 0:
+            print('\nNenhum usuario com empréstimo pendente.')
+            return
+        
+        print('\n')
+        for userId in usersSet:
+            userDocument = collectionUsers.find_one({'_id': userId})
+
+            for databaseName, friendlyName in userKeyMapping.items():
+                userValue = userDocument.get(databaseName, 'Informação não disponível')
+                print(f'{friendlyName} : {userValue}')
+            print('--------\n')
+
+    else:
+        print('\nNenhum usuario cadastrado.')
+
 def updateUserBy(updateUser):
     if (updateUser):
         print(updateUser)
@@ -479,17 +504,17 @@ def searchLoanByPeriod():
             bookId = document['book_id']
             bookTitle = collectionBooks.find_one({'_id': bookId})['title']
 
-            for databaseName, friendlyName in loanKeyMapping.items():
-                loan_date = document['loan_date']
-                loanValue = document.get(databaseName, 'Informação não disponível')
-                if fromDate <= loan_date <= toDate:
+            loan_date = document['loan_date']
+            if fromDate <= loan_date <= toDate:
+                for databaseName, friendlyName in loanKeyMapping.items():
+                    loanValue = document.get(databaseName, 'Informação não disponível')
                     print(f'{friendlyName} : {loanValue}')
-            print(f'Nome do Usuário : {userName}')
-            print(f'Título do Livro : {bookTitle}')
+                print(f'Nome do Usuário : {userName}')
+                print(f'Título do Livro : {bookTitle}')
 
-            checkLoanPending(document)
-            
-            print('--------\n')
+                checkLoanPending(document)
+                
+                print('--------\n')
     
     except Exception as e:
         print(f'\nAlgo deu errado: {str(e)}')
@@ -627,19 +652,22 @@ def main():
 
             elif (userRequest == '2') or (userRequest.lower() == 'usuários'):
                 while True:
-                    userRequest = str(input('\nQual função deseja realizar?\n1 - Consultar todos os usuários\n2 - Adicionar usuário\n3 - Atualizar usuário\n4 - Remover usuário\n\nDeixe em branco para voltar:\n\n>> '))
+                    userRequest = str(input('\nQual função deseja realizar?\n1 - Listar todos os usuários\n2 - Consultar usuários com empréstimos vencidos\n3 - Adicionar usuário\n4 - Atualizar usuário\n5 - Remover usuário\n\nDeixe em branco para voltar:\n\n>> '))
 
-                    if (userRequest == '1') or (userRequest.lower() == 'consultar'):
+                    if (userRequest == '1') or (userRequest.lower() == 'Listar'):
                         searchUserAll()
+                    
+                    elif (userRequest == '2') or (userRequest.lower() == 'vencidos'):
+                        searchUserExpired()
 
-                    elif (userRequest == '2') or (userRequest.lower() == 'adicionar'):
+                    elif (userRequest == '3') or (userRequest.lower() == 'adicionar'):
                         insertUser()
 
-                    elif (userRequest == '3') or (userRequest.lower() == 'atualizar'):
+                    elif (userRequest == '4') or (userRequest.lower() == 'atualizar'):
                         updateUser = searchUserBy()
                         updateUserBy(updateUser)
 
-                    elif (userRequest == '4') or (userRequest.lower() == 'remover'):
+                    elif (userRequest == '5') or (userRequest.lower() == 'remover'):
                         removeUser = searchUserBy()
                         removeUserBy(removeUser)
 

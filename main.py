@@ -449,16 +449,16 @@ def main():
         
     def checkLoanPending(loanDocument):
         if (loanDocument['returned_date'] == None) and (loanDocument['to_return_date'] > datetime.now()):
-            print('O empréstimo está ativo, aguardando devolução...')
+            print(f'O empréstimo está ativo, aguardando devolução. Restam {abs((loanDocument['to_return_date'] - datetime.now()).days)} dias para o prazo de devolução.')
         
         elif (loanDocument['returned_date'] == None) and (loanDocument['to_return_date'] < datetime.now()):
             print(f'O empréstimo expirou e não foi devolvido. {abs((datetime.now() - loanDocument['to_return_date']).days)} dias de atraso.')
 
         elif (loanDocument['returned_date'] != None) and (loanDocument['to_return_date'] > loanDocument['returned_date']):
-            print(f'O empréstimo foi devolvido dentro do prazo. Em {loanDocument['returned_date'].strftime("%d-%m-%Y")}.')
+            print(f'O empréstimo foi devolvido dentro do prazo. Em {loanDocument['returned_date'].strftime("%Y-%m-%d")}.')
 
         elif (loanDocument['returned_date'] != None) and (loanDocument['to_return_date'] < loanDocument['returned_date']):
-            print(f'O empréstimo foi devolvido fora do prazo. Em {loanDocument['returned_date'].strftime("%d-%m-%Y")}. {abs((loanDocument['returned_date'] - loanDocument['to_return_date']).days)} dias de atraso.')
+            print(f'O empréstimo foi devolvido fora do prazo. Em {loanDocument['returned_date'].strftime("%Y-%m-%d")}. {abs((loanDocument['returned_date'] - loanDocument['to_return_date']).days)} dias de atraso.')
         
         else:
             print('Houve um erro na busca.')
@@ -474,8 +474,8 @@ def main():
             print(book)
             loanBookId = book['_id']
 
-            loanDate = datetime.now()
-            toReturnDate = datetime.now() + relativedelta(months=1)
+            loanDate = datetime.now().replace(microsecond=0)
+            toReturnDate = datetime.now().replace(microsecond=0) + relativedelta(months=1)
             returnedDate = None
 
         except:
@@ -600,7 +600,7 @@ def main():
 
                     collectionBooks.update_one({'_id': bookId}, {'$set': {'quantity': currentQuantity + 1}})
 
-                    collectionLoans.update_one({'_id': finishLoan['_id']}, {'$set': {'returned_date': datetime.now()}})
+                    collectionLoans.update_one({'_id': finishLoan['_id']}, {'$set': {'returned_date': datetime.now().replace(microsecond=0)}})
                     print('\nEmprestimo finalizado com sucesso!')
                 
                 except:

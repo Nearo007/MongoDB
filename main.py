@@ -18,7 +18,7 @@ def main():
         print("\nErro de conexão: Verifique se a senha e o URI estão corretos.")  # Encerra o programa se houver erro de conexão
         sys.exit()
 
-    db = client['LibraryManager']  # Seleciona o banco de dados 'LibraryManager'
+    db = client['LibraryManager2']  # Seleciona o banco de dados 'LibraryManager'
     
     # Seleciona as coleções de livros, usuários e empréstimos
     collectionBooks = db['books']
@@ -134,7 +134,7 @@ def main():
             searchBook = collectionBooks.find_one({'title': userSearchTitle})
 
         elif (userSearchBy == '2') or (userSearchBy.lower() == 'isbn'):
-            userSearchISBN = str(input('\nSBN do livro:\n>> '))
+            userSearchISBN = str(input('\nISBN do livro:\n>> '))
 
             searchBook = collectionBooks.find_one({'ISBN': userSearchISBN})
 
@@ -309,7 +309,7 @@ def main():
             searchUser = collectionUsers.find_one({'CPF': userSearchCPF})
 
         elif (userSearchBy == '4') or (userSearchBy.lower() == 'id'):
-            userSearchId = str(input('\nId do livro:\n>> '))
+            userSearchId = str(input('\nId do usuario:\n>> '))
 
             try:
                 searchUser = collectionUsers.find_one({'_id': ObjectId(userSearchId)})
@@ -413,7 +413,7 @@ def main():
                 elif (userUpdateBy == '4') or (userUpdateBy.lower() == 'cpf'):
                     userNewInfo = str(input('Digite o novo CPF: '))
                     userCPFcheck = userNewInfo.replace('.', '')
-                    userCPFcheck = userNewInfo.replace('-', '')
+                    userCPFcheck = userCPFcheck.replace('-', '')
 
                     if (collectionUsers.count_documents({'CPF': userNewInfo}) > 0):
                         raise ValueError('Este CPF está sendo usado por outro usuário')
@@ -455,10 +455,10 @@ def main():
             print(f'O empréstimo expirou e não foi devolvido. {abs((datetime.now() - loanDocument['to_return_date']).days)} dias de atraso.')
 
         elif (loanDocument['returned_date'] != None) and (loanDocument['to_return_date'] > loanDocument['returned_date']):
-            print(f'O empréstimo foi devolvido dentro do prazo. Em {loanDocument['returned_date'].strftime("%Y-%m-%d")}.')
+            print(f'O empréstimo foi devolvido dentro do prazo. Em {loanDocument['returned_date']}.')
 
         elif (loanDocument['returned_date'] != None) and (loanDocument['to_return_date'] < loanDocument['returned_date']):
-            print(f'O empréstimo foi devolvido fora do prazo. Em {loanDocument['returned_date'].strftime("%Y-%m-%d")}. {abs((loanDocument['returned_date'] - loanDocument['to_return_date']).days)} dias de atraso.')
+            print(f'O empréstimo foi devolvido fora do prazo. Em {loanDocument['returned_date']}. {abs((loanDocument['returned_date'] - loanDocument['to_return_date']).days)} dias de atraso.')
         
         else:
             print('Houve um erro na busca.')

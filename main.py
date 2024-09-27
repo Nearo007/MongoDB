@@ -18,7 +18,7 @@ def main():
         print("\nErro de conexão: Verifique se a senha e o URI estão corretos.")  # Encerra o programa se houver erro de conexão
         sys.exit()
 
-    db = client['LibraryManager2']  # Seleciona o banco de dados 'LibraryManager'
+    db = client['LibraryManager']  # Seleciona o banco de dados 'LibraryManager'
     
     # Seleciona as coleções de livros, usuários e empréstimos
     collectionBooks = db['books']

@@ -452,13 +452,13 @@ def main():
             print('O empréstimo está ativo, aguardando devolução...')
         
         elif (loanDocument['returned_date'] == None) and (loanDocument['to_return_date'] < datetime.now()):
-            print('O empréstimo expirou e não foi devolvido.')
+            print(f'O empréstimo expirou e não foi devolvido. {abs((datetime.now() - loanDocument['to_return_date']).days)} dias de atraso.')
 
         elif (loanDocument['returned_date'] != None) and (loanDocument['to_return_date'] > loanDocument['returned_date']):
-            print('O empréstimo foi devolvido dentro do prazo.')
+            print(f'O empréstimo foi devolvido dentro do prazo. Em {loanDocument['returned_date'].strftime("%d-%m-%Y")}.')
 
         elif (loanDocument['returned_date'] != None) and (loanDocument['to_return_date'] < loanDocument['returned_date']):
-            print('O empréstimo foi devolvido fora do prazo.')
+            print(f'O empréstimo foi devolvido fora do prazo. Em {loanDocument['returned_date'].strftime("%d-%m-%Y")}. {abs((loanDocument['returned_date'] - loanDocument['to_return_date']).days)} dias de atraso.')
         
         else:
             print('Houve um erro na busca.')

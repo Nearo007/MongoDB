@@ -10,7 +10,8 @@ def main():
     load_dotenv()  # Carrega variáveis de ambiente a partir do arquivo .env
     clusterPassword = os.getenv('CLUSTER_PASSWORD')  # Pega a senha do cluster a partir das variáveis de ambiente
     try:  # Tenta conectar ao cluster MongoDB
-        client = MongoClient(f'mongodb+srv://Nearo:{clusterPassword}@cluster0.kcsg9.mongodb.net/')
+        #client = MongoClient(f'mongodb+srv://Nearo:{clusterPassword}@cluster0.kcsg9.mongodb.net/') (Conexão mais segura)
+        client = MongoClient(f'mongodb+srv://Nearo:leandroDB@cluster0.kcsg9.mongodb.net/') # Conexão mais simples
         db_list = client.list_database_names()   # Lista os bancos de dados disponíveis
         print("\nConexão bem-sucedida!")
 
@@ -285,8 +286,7 @@ def main():
             'email': userInfo[1],
             'birth_date': userInfo[2],
             'CPF': userInfo[3]
-        }
-        
+        }        
         collectionUsers.insert_one(documentUser)
         print('\nUsuario cadastrado com sucesso!')
 
@@ -514,7 +514,6 @@ def main():
             fromDate = input('Data inicial (DD-MM-AAAA) ou (DD/MM/AAAA): ')
             fromDate = fromDate.replace('/', '-')
             fromDate = datetime.strptime(fromDate, '%d-%m-%Y')
-
             toDate = input('Data final (DD-MM-AAAA) ou (DD/MM/AAAA): ')
             toDate = toDate.replace('/', '-')
             toDate = datetime.strptime(toDate, '%d-%m-%Y')

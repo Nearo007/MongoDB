@@ -8,10 +8,9 @@ import sys  # Para sair do programa em caso de erro
 
 def main():
     load_dotenv()  # Carrega variáveis de ambiente a partir do arquivo .env
-    clusterPassword = os.getenv('CLUSTER_PASSWORD')  # Pega a senha do cluster a partir das variáveis de ambiente
+    connectionString = os.getenv('CONNECTION_STRING')  # Pega a string de conexão a partir das variáveis de ambiente
     try:  # Tenta conectar ao cluster MongoDB
-        #client = MongoClient(f'mongodb+srv://Nearo:{clusterPassword}@cluster0.kcsg9.mongodb.net/') (Conexão mais segura)
-        client = MongoClient(f'mongodb+srv://Nearo:leandroDB@cluster0.kcsg9.mongodb.net/') # Conexão mais simples
+        client = MongoClient(connectionString)
         db_list = client.list_database_names()   # Lista os bancos de dados disponíveis
         print("\nConexão bem-sucedida!")
 
